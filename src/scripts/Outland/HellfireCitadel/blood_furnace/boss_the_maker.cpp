@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -126,7 +126,7 @@ struct boss_the_makerAI : public ScriptedAI
 
         if (Knockdown_Timer <= diff)
         {
-            DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+            DoCast(me->GetVictim(), SPELL_KNOCKDOWN);
             Knockdown_Timer = 4000 + rand() % 8000;
         }
         else

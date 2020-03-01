@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -157,12 +157,12 @@ struct boss_skeramAI : public ScriptedAI
         else ArcaneExplosion_Timer -= diff;
 
         //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
+        if (me->IsWithinMeleeRange(me->GetVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
             if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
             {
-                me->AttackerStateUpdate(me->getVictim());
+                me->AttackerStateUpdate(me->GetVictim());
                 me->resetAttackTimer();
             }
         }

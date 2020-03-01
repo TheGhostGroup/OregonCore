@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef __BATTLEGROUND_H
@@ -61,6 +61,7 @@ enum BattlegroundMarksCount
 
 enum BattlegroundSpells
 {
+    SPELL_SUMMON_PET                = 6962,                 // Pet Summoned
     SPELL_WAITING_FOR_RESURRECT     = 2584,                 // Waiting to Resurrect
     SPELL_SPIRIT_HEAL_CHANNEL       = 22011,                // Spirit Heal Channel
     SPELL_SPIRIT_HEAL               = 22012,                // Spirit Heal

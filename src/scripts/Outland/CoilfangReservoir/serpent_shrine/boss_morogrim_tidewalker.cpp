@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -292,7 +292,7 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             else WateryGrave_Timer -= diff;
 
             //Start Phase2
-            if ((me->GetHealth() * 100 / me->GetMaxHealth()) < 25)
+            if (HealthBelowPct(25))
                 Phase2 = true;
         }
         else
@@ -346,14 +346,14 @@ struct mob_water_globuleAI : public ScriptedAI
 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        me->setFaction(14);
+        me->SetFaction(14);
     }
 
     void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (!who || me->getVictim())
+        if (!who || me->GetVictim())
             return;
 
         if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor (me) && me->IsHostileTo(who))
@@ -372,7 +372,7 @@ struct mob_water_globuleAI : public ScriptedAI
 
         if (Check_Timer <= diff)
         {
-            if (me->IsWithinDistInMap(me->getVictim(), 5))
+            if (me->IsWithinDistInMap(me->GetVictim(), 5))
             {
                 DoCastVictim( SPELL_GLOBULE_EXPLOSION);
 

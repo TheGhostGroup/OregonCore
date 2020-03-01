@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -26,6 +26,7 @@ EndScriptData */
 mobs_risen_husk_spirit
 npc_restless_apparition
 npc_deserter_agitator
+npc_gavis_greysheild
 npc_lady_jaina_proudmoore
 npc_nat_pagle
 npc_morokk
@@ -179,14 +180,14 @@ bool GossipSelect_npc_deserter_agitator(Player* pPlayer, Creature* pCreature, ui
         {
         case 0:
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            pCreature->setFaction(14);
+            pCreature->SetFaction(14);
             pCreature->AI()->AttackStart(pPlayer);
             break;
         case 1:
             pPlayer->KilledMonsterCredit(NPC_THERAMORE_DESERTER, 0);
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             pCreature->SetSpeed(MOVE_RUN, pCreature->GetSpeedRate(MOVE_RUN), true);
-            pCreature->setFaction(35);
+            pCreature->SetFaction(35);
             pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NON_ATTACKABLE);
             pCreature->SetReactState(REACT_PASSIVE);
             pCreature->GetMotionMaster()->MovePoint(1, DeserterDisappearPos);
@@ -195,6 +196,106 @@ bool GossipSelect_npc_deserter_agitator(Player* pPlayer, Creature* pCreature, ui
     }
 
     return true;
+}
+
+/*######
+## npc_gavis_greyshield
+######*/
+
+enum eGavisGreyshield
+{
+	NPC_GAVIS_GREYSHIELD = 23941,
+
+	SAY_GAVIS1 = -1910267,
+	SAY_GAVIS2 = -1910268,
+
+	QUEST_THE_END_OF_THE_DESERTERS = 11134,
+	SPELL_GAVIS_GREYSHIELD_CREDIT = 42660,
+
+	PHASE_GAVIS_ATTACK = 1,
+	PHASE_GAVIS_SURRENDER = 2
+};
+
+struct npc_gavis_greyshieldAI : public ScriptedAI
+{
+	npc_gavis_greyshieldAI(Creature* pCreature) : ScriptedAI(pCreature) 
+	{
+		Reset();
+	}
+
+	uint32 phase;
+	uint32 phaseTimer;
+	uint32 phaseCounter;
+
+	void Reset()
+	{
+		me->SetFaction(54);
+		phase = PHASE_GAVIS_ATTACK;
+		phaseTimer = 0;
+		phaseCounter = 0;
+	}
+
+	void EnterCombat(Unit* /*who*/) { }
+
+	void DamageTaken(Unit* done_by, uint32& damage)
+	{
+		if (done_by->GetTypeId() == TYPEID_PLAYER)
+		{
+			if (damage > me->GetHealth())
+			{
+				me->SetHealth(1);
+				damage = 0;
+			}
+
+            if (me->HealthBelowPctDamaged(20, damage))
+			{
+				if (CAST_PLR(done_by)->GetQuestStatus(QUEST_THE_END_OF_THE_DESERTERS) == QUEST_STATUS_INCOMPLETE)
+					me->CastSpell(done_by, SPELL_GAVIS_GREYSHIELD_CREDIT, true);
+
+				phase = PHASE_GAVIS_SURRENDER;
+			}
+		}
+	}
+
+	void UpdateAI(const uint32 uiDiff)
+	{
+		switch (phase)
+		{
+			case PHASE_GAVIS_ATTACK:
+				break;
+
+			case PHASE_GAVIS_SURRENDER:
+				if (phaseTimer <= uiDiff)
+				{
+					switch (phaseCounter)
+					{
+						case 0:
+							me->CombatStop(true);
+							me->SetFaction(35);
+							DoScriptText(SAY_GAVIS1, me);
+							phaseTimer = 5000;
+							break;
+						case 1:
+							DoScriptText(SAY_GAVIS2, me);
+							phaseTimer = 10000;
+							break;
+						case 2:
+							me->DespawnOrUnsummon();
+							break;
+					}
+					++phaseCounter;
+				}
+				else
+				{
+					phaseTimer -= uiDiff;
+				}
+		}
+	}
+};
+
+CreatureAI* GetAI_npc_gavis_greyshield(Creature* pCreature)
+{
+	return new npc_gavis_greyshieldAI(pCreature);
 }
 
 /*######
@@ -304,7 +405,7 @@ bool GossipSelect_npc_theramore_guard(Player* pPlayer, Creature* pCreature, uint
 
 bool GossipHello_npc_lady_jaina_proudmoore(Player* player, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         player->PrepareQuestMenu(pCreature->GetGUID());
 
     if (player->GetQuestStatus(558) == QUEST_STATUS_INCOMPLETE)
@@ -331,10 +432,10 @@ bool GossipSelect_npc_lady_jaina_proudmoore(Player* player, Creature* pCreature,
 
 bool GossipHello_npc_nat_pagle(Player* player, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         player->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pCreature->isVendor() && player->GetQuestRewardStatus(8227))
+    if (pCreature->IsVendor() && player->GetQuestRewardStatus(8227))
     {
         player->ADD_GOSSIP_ITEM(1, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
         player->SEND_GOSSIP_MENU(7640, pCreature->GetGUID());
@@ -401,7 +502,7 @@ struct npc_morokkAI : public npc_escortAI
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (me->getVictim())
+        if (me->GetVictim())
             return;
 
         if (me->IsFriendlyTo(pAttacker))
@@ -419,7 +520,7 @@ struct npc_morokkAI : public npc_escortAI
                 if (Player* pPlayer = GetPlayerForEscort())
                     pPlayer->GroupEventHappens(QUEST_CHALLENGE_MOROKK, me);
 
-                me->setFaction(FACTION_MOR_RUNNING);
+                me->SetFaction(FACTION_MOR_RUNNING);
                 SetRun(true);
 
                 m_bIsSuccess = true;
@@ -432,7 +533,7 @@ struct npc_morokkAI : public npc_escortAI
 
     void UpdateEscortAI(const uint32 /*uiDiff*/)
     {
-        if (!me->getVictim())
+        if (!me->GetVictim())
         {
             if (HasEscortState(STATE_ESCORT_PAUSED))
             {
@@ -440,7 +541,7 @@ struct npc_morokkAI : public npc_escortAI
                 {
                     m_bIsSuccess = false;
                     DoScriptText(SAY_MOR_CHALLENGE, me, pPlayer);
-                    me->setFaction(FACTION_MOR_HOSTILE);
+                    me->SetFaction(FACTION_MOR_HOSTILE);
                     AttackStart(pPlayer);
                 }
 
@@ -581,7 +682,7 @@ struct npc_ogronAI : public npc_escortAI
     {
         lCreatureList.push_back(pSummoned);
 
-        pSummoned->setFaction(FACTION_GENERIC_FRIENDLY);
+        pSummoned->SetFaction(FACTION_GENERIC_FRIENDLY);
 
         if (pSummoned->GetEntry() == NPC_CALDWELL)
             pSummoned->GetMotionMaster()->MovePoint(0, m_afMoveTo[0], m_afMoveTo[1], m_afMoveTo[2]);
@@ -607,7 +708,7 @@ struct npc_ogronAI : public npc_escortAI
 
                 if ((*itr)->IsAlive())
                 {
-                    (*itr)->setFaction(FACTION_THER_HOSTILE);
+                    (*itr)->SetFaction(FACTION_THER_HOSTILE);
                     (*itr)->AI()->AttackStart(me);
                 }
             }
@@ -750,7 +851,7 @@ bool QuestAccept_npc_ogron(Player* pPlayer, Creature* pCreature, const Quest* pQ
 {
     if (pQuest->GetQuestId() == QUEST_QUESTIONING)
     {
-        pCreature->setFaction(FACTION_ESCORT_N_FRIEND_PASSIVE);
+        pCreature->SetFaction(FACTION_ESCORT_N_FRIEND_PASSIVE);
         DoScriptText(SAY_OGR_START, pCreature, pPlayer);
 
         if (npc_ogronAI* pEscortAI = CAST_AI(npc_ogronAI, (pCreature->AI())))
@@ -805,6 +906,11 @@ struct npc_private_hendelAI : public ScriptedAI
 {
     npc_private_hendelAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
+        PlayerGUID = 0;
+        m_uiPhase = 0;
+        m_uiEventTimer = 0;
+        m_uiPhaseCounter = 0;
+        lCreatureList.clear();
         Reset();
     }
 
@@ -817,16 +923,12 @@ struct npc_private_hendelAI : public ScriptedAI
 
     void Reset()
     {
-        PlayerGUID = 0;
-        m_uiPhase = 0;
-        m_uiEventTimer = 0;
-        m_uiPhaseCounter = 0;
-        lCreatureList.clear();
+        me->RestoreFaction();
     }
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (me->getVictim())
+        if (me->GetVictim())
             return;
 
         if (me->IsFriendlyTo(pAttacker))
@@ -858,7 +960,7 @@ struct npc_private_hendelAI : public ScriptedAI
         if (!pPlayer)
             return;
 
-        me->setFaction(FACTION_HOSTILE);
+        me->SetFaction(FACTION_HOSTILE);
         me->AI()->AttackStart(pPlayer);
 
         float x, y, z;
@@ -869,7 +971,7 @@ struct npc_private_hendelAI : public ScriptedAI
         cell.SetNoCreate();
 
         Oregon::AllCreaturesOfEntryInRange check(me, NPC_SENTRY, 20);
-        Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(lCreatureList, check);
+        Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, lCreatureList, check);
         TypeContainerVisitor<Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
         cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
@@ -879,7 +981,7 @@ struct npc_private_hendelAI : public ScriptedAI
             {
                 if ((*itr)->IsAlive())
                 {
-                    (*itr)->setFaction(FACTION_HOSTILE);
+                    (*itr)->SetFaction(FACTION_HOSTILE);
                     (*itr)->AI()->AttackStart(pPlayer);
                 }
             }
@@ -936,22 +1038,14 @@ struct npc_private_hendelAI : public ScriptedAI
 
     void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
     {
-        if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage) * 100 / me->GetMaxHealth() < 20))
+        if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(20, uiDamage))
         {
             uiDamage = 0;
+
+            EnterEvadeMode();
+
             m_uiPhase = PHASE_COMPLETE;
             m_uiEventTimer = 2000;
-
-            me->RestoreFaction();
-            me->RemoveAllAuras();
-            me->DeleteThreatList();
-            me->CombatStop(true);
-            me->SetWalk(false);
-            me->SetHomePosition(-2892.28f, -3347.81f, 31.8609f, 0.160719f);
-            me->GetMotionMaster()->MoveTargetedHome();
-
-            if (Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID))
-                pPlayer->CombatStop(true);
 
             if (!lCreatureList.empty())
             {
@@ -963,9 +1057,7 @@ struct npc_private_hendelAI : public ScriptedAI
                     {
                         N = N + 1;
                         (*itr)->RestoreFaction();
-                        (*itr)->RemoveAllAuras();
-                        (*itr)->DeleteThreatList();
-                        (*itr)->CombatStop(true);
+                        EnterEvadeMode();
                         (*itr)->SetWalk(false);
                         (*itr)->GetMotionMaster()->MovePoint(0, m_afEventMoveTo[N].m_fX,  m_afEventMoveTo[N].m_fY,  m_afEventMoveTo[N].m_fZ);
                         (*itr)->ForcedDespawn(5000);
@@ -1040,14 +1132,14 @@ struct npc_zelfraxAI : public ScriptedAI
         SetCombatMovement(true);
 
         if (me->IsInCombat())
-            if (Unit* pUnit = me->getVictim())
+            if (Unit* pUnit = me->GetVictim())
                 me->GetMotionMaster()->MoveChase(pUnit);
     }
 
     void MoveToDock()
     {
         SetCombatMovement(false);
-        me->GetMotionMaster()->MovePoint(0, -2967.030, -3872.1799, 35.620);
+        me->GetMotionMaster()->MovePoint(0, -2967.030f, -3872.1799f, 35.620f);
         DoScriptText(SAY_ZELFRAX, me);
         DoScriptText(SAY_ZELFRAX_2, me);
     }
@@ -1201,7 +1293,7 @@ bool QuestAccept_npc_stinky(Player* pPlayer, Creature* pCreature, Quest const* q
     {
         if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinkyAI, pCreature->AI()))
         {
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+            pCreature->SetFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
             DoScriptText(SAY_QUEST_ACCEPTED, pCreature);
             pEscortAI->Start(false, false, pPlayer->GetGUID());
@@ -1279,12 +1371,17 @@ void AddSC_dustwallow_marsh()
     newscript->pGossipHello =   &GossipHello_npc_restless_apparition;
     newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_deserter_agitator";
-    newscript->GetAI = &GetAI_npc_deserter_agitator;
-    newscript->pGossipHello = &GossipHello_npc_deserter_agitator;
-    newscript->pGossipSelect = &GossipSelect_npc_deserter_agitator;
-    newscript->RegisterSelf();
+	newscript = new Script;
+	newscript->Name = "npc_deserter_agitator";
+	newscript->GetAI = &GetAI_npc_deserter_agitator;
+	newscript->pGossipHello = &GossipHello_npc_deserter_agitator;
+	newscript->pGossipSelect = &GossipSelect_npc_deserter_agitator;
+	newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_gavis_greyshield";
+	newscript->GetAI = &GetAI_npc_gavis_greyshield;
+	newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_theramore_guard";
@@ -1308,19 +1405,19 @@ void AddSC_dustwallow_marsh()
     newscript = new Script;
     newscript->Name = "npc_morokk";
     newscript->GetAI = &GetAI_npc_morokk;
-    newscript->pQuestAccept = &QuestAccept_npc_morokk;
+    newscript->QuestAccept = &QuestAccept_npc_morokk;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_ogron";
     newscript->GetAI = &GetAI_npc_ogron;
-    newscript->pQuestAccept = &QuestAccept_npc_ogron;
+    newscript->QuestAccept = &QuestAccept_npc_ogron;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_private_hendel";
     newscript->GetAI = &GetAI_npc_private_hendel;
-    newscript->pQuestAccept = &QuestAccept_npc_private_hendel;
+    newscript->QuestAccept = &QuestAccept_npc_private_hendel;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1336,7 +1433,7 @@ void AddSC_dustwallow_marsh()
     newscript = new Script;
     newscript->Name = "npc_stinky";
     newscript->GetAI = &GetAI_npc_stinky;
-    newscript->pQuestAccept = &QuestAccept_npc_stinky;
+    newscript->QuestAccept = &QuestAccept_npc_stinky;
     newscript->RegisterSelf();
 
     newscript = new Script;

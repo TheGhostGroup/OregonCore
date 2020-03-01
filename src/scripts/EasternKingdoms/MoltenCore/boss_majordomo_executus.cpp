@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -87,7 +87,7 @@ struct boss_majordomoAI : public ScriptedAI
             return;
 
         //Cast Ageis if less than 50% hp
-        if (me->GetHealth() * 100 / me->GetMaxHealth() < 50)
+        if (HealthBelowPct(50))
             DoCast(me, SPELL_AEGIS);
 
         //MagicReflection_Timer

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OREGONCORE_PET_H
@@ -147,10 +147,10 @@ class Pet : public Guardian
 {
     public:
         explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);
-        virtual ~Pet();
+        ~Pet() override;
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
         PetType getPetType() const
         {
@@ -171,21 +171,21 @@ class Pet : public Guardian
 
         bool IsPermanentPetFor(Player* owner);              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-        bool Create (uint32 guidlow, Map* map, uint32 Entry, uint32 pet_number);
+        bool Create (uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         bool CreateBaseAtCreature(Creature* creature);
         bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         void SavePetToDB(PetSaveMode mode);
         void Remove(PetSaveMode mode, bool returnreagent = false);
         static void DeleteFromDB(uint32 guidlow);
 
-        void setDeathState(DeathState s);                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
-        void Update(uint32 diff);                           // overwrite virtual Creature::Update and Unit::Update
+        void setDeathState(DeathState s) override;                   // overwrite virtual Creature::setDeathState and Unit::setDeathState
+        void Update(uint32 diff) override;                           // overwrite virtual Creature::Update and Unit::Update
 
-        uint8 GetPetAutoSpellSize() const
+        uint8 GetPetAutoSpellSize() const override
         {
             return m_autospells.size();
         }
-        uint32 GetPetAutoSpellOnPos(uint8 pos) const
+        uint32 GetPetAutoSpellOnPos(uint8 pos) const override
         {
             if (pos >= m_autospells.size())
                 return 0;
@@ -194,7 +194,7 @@ class Pet : public Guardian
         }
 
         void RegenerateFocus();
-        void LooseHappiness();
+        void LoseHappiness();
         void TickLoyaltyChange();
         void ModifyLoyalty(int32 addvalue);
         HappinessState GetHappinessState();
@@ -211,15 +211,9 @@ class Pet : public Guardian
         void InitPetAuras(const uint32 Entry);
         bool HaveInDiet(ItemTemplate const* item) const;
         uint32 GetCurrentFoodBenefitLevel(uint32 itemlevel);
-        void SetDuration(int32 dur)
-        {
-            m_duration = dur;
-        }
+        void SetDuration(int32 dur) { m_duration = dur; }
 
-        bool canSwim() const
-        {
-            return true;
-        }
+        bool CanSwim() const { return true; }
 
         bool   CanTakeMoreActiveSpells(uint32 SpellIconID);
         void   ToggleAutocast(uint32 spellid, bool apply);
@@ -229,7 +223,7 @@ class Pet : public Guardian
         void ApplyModeFlags(PetModeFlags mode, bool apply);
         PetModeFlags GetModeFlags() const { return m_petModeFlags; }
 
-        bool HasSpell(uint32 spell) const;
+        bool HasSpell(uint32 spell) const override;
         void AddTeachSpell(uint32 learned_id, uint32 source_id)
         {
             m_teachspells[learned_id] = source_id;
@@ -315,11 +309,11 @@ class Pet : public Guardian
         using Creature::SaveToDB;
         using Creature::DeleteFromDB;
         
-        void SaveToDB(uint32, uint8)                        // overwrited of Creature::SaveToDB     - don't must be called
+        void SaveToDB(uint32, uint8, uint32) override                        // overwrited of Creature::SaveToDB     - don't must be called
         {
             assert(false);
         }
-        void DeleteFromDB()                                 // overwrited of Creature::DeleteFromDB - don't must be called
+        void DeleteFromDB() override                                 // overwrited of Creature::DeleteFromDB - don't must be called
         {
             assert(false);
         }

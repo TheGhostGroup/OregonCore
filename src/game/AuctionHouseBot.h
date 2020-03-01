@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef AUCTION_HOUSE_BOT_H
@@ -22,7 +22,7 @@
 #include "ObjectMgr.h"
 #include "Config/Config.h"
 #include "ItemPrototype.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 
 #define AHB_GREY        0
 #define AHB_WHITE       1
@@ -854,7 +854,7 @@ class AHBConfig
                 else if ((greenip - diff) > 0)
                     greenip -= diff;
             }
-            else if (diff < 0)
+            else if (diff > 0)
                 whiteip += diff;
         }
         uint32 GetPercents(uint32 color)

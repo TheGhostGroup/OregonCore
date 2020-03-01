@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -186,7 +186,7 @@ struct boss_janalaiAI : public ScriptedAI
     {
         if (isFlameBreathing)
         {
-            if (!me->HasInArc(M_PI / 6, pTarget))
+            if (!me->HasInArc(float(M_PI) / 6, pTarget))
                 damage = 0;
         }
     }
@@ -240,7 +240,7 @@ struct boss_janalaiAI : public ScriptedAI
             cell.SetNoCreate();
 
             Oregon::AllCreaturesOfEntryInRange check(me, MOB_EGG, 100);
-            Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(templist, check);
+            Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             TypeContainerVisitor<Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
             cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
         }
@@ -271,7 +271,7 @@ struct boss_janalaiAI : public ScriptedAI
             cell.SetNoCreate();
 
             Oregon::AllCreaturesOfEntryInRange check(me, MOB_FIRE_BOMB, 100);
-            Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(templist, check);
+            Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             TypeContainerVisitor<Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
             cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
         }
@@ -376,7 +376,7 @@ struct boss_janalaiAI : public ScriptedAI
             if (!pMap->IsDungeon()) return;
             Map::PlayerList const& PlayerList = pMap->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-                if (Player* i_pl = i->getSource())
+                if (Player* i_pl = i->GetSource())
                     if (i_pl->IsAlive())
                         DoTeleportPlayer(i_pl, JanalainPos[0][0] - 5 + rand() % 10, JanalainPos[0][1] - 5 + rand() % 10, JanalainPos[0][2], 0);
             //DoCast(Temp, SPELL_SUMMON_PLAYERS, true) // core bug, spell does not work if too far
@@ -519,7 +519,7 @@ struct mob_amanishi_hatcherAI : public ScriptedAI
             cell.SetNoCreate();
 
             Oregon::AllCreaturesOfEntryInRange check(me, 23817, 50);
-            Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(templist, check);
+            Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             TypeContainerVisitor<Oregon::CreatureListSearcher<Oregon::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
             cell.Visit(pair, cSearcher, *me->GetMap(), *me, me->GetGridActivationRange());
         }

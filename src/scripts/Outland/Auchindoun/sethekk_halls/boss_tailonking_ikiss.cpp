@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -89,7 +89,7 @@ struct boss_talon_king_ikissAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor (me))
+        if (!me->GetVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor (me))
         {
             if (!Intro && me->IsWithinDistInMap(who, 100))
             {
@@ -97,7 +97,7 @@ struct boss_talon_king_ikissAI : public ScriptedAI
                 DoScriptText(SAY_INTRO, me);
             }
 
-            if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+            if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
             float attackRadius = me->GetAttackDistance(who);

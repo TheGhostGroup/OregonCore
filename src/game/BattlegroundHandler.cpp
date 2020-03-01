@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -44,7 +44,7 @@ void WorldSession::HandleBattlegroundHelloOpcode(WorldPacket& recv_data)
     if (!unit)
         return;
 
-    if (!unit->isBattleMaster())                             // it's not battlemaster
+    if (!unit->IsBattleMaster())                             // it's not battlemaster
         return;
 
     // Stop the npc if moving
@@ -108,7 +108,7 @@ void WorldSession::HandleBattlegroundJoinOpcode(WorldPacket& recv_data)
     if (!unit)
         return;
 
-    if (!unit->isBattleMaster())                             // it's not battlemaster
+    if (!unit->IsBattleMaster())                             // it's not battlemaster
         return;
 
     // get bg instance or bg template if instance not found
@@ -163,7 +163,7 @@ void WorldSession::HandleBattlegroundJoinOpcode(WorldPacket& recv_data)
         GroupQueueInfo* ginfo = sBattlegroundMgr.m_BattlegroundQueues[bgQueueTypeId].AddGroup(_player, bgTypeId, 0, false, 0);
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
             if (!member) continue;   // this should never happen
 
             uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);           // add to queue
@@ -466,7 +466,7 @@ void WorldSession::HandleBattlegroundPlayerPortOpcode(WorldPacket& recv_data)
                 _player->SpawnCorpseBones();
             }
             // stop taxi flight at port
-            if (_player->isInFlight())
+            if (_player->IsInFlight())
             {
                 _player->GetMotionMaster()->MovementExpired();
                 _player->CleanupAfterTaxiFlight();
@@ -641,7 +641,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode(WorldPacket& recv_data)
     if (!unit)
         return;
 
-    if (!unit->isSpiritService())                            // it's not spirit service
+    if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
     sBattlegroundMgr.SendAreaSpiritHealerQueryOpcode(_player, bg, guid);
@@ -662,7 +662,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode(WorldPacket& recv_data)
     if (!unit)
         return;
 
-    if (!unit->isSpiritService())                            // it's not spirit service
+    if (!unit->IsSpiritService())                            // it's not spirit service
         return;
 
     bg->AddPlayerToResurrectQueue(guid, _player->GetGUID());
@@ -689,7 +689,7 @@ void WorldSession::HandleBattlegroundArenaJoin(WorldPacket& recv_data)
     if (!unit)
         return;
 
-    if (!unit->isBattleMaster())                             // it's not battle master
+    if (!unit->IsBattleMaster())                             // it's not battle master
         return;
 
     uint8 arenatype = 0;
@@ -772,7 +772,7 @@ void WorldSession::HandleBattlegroundArenaJoin(WorldPacket& recv_data)
         uint32 avg_pers_rating = 0;
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
 
             // calc avg personal rating
             avg_pers_rating += member->GetArenaPersonalRating(arenaslot);
@@ -794,7 +794,7 @@ void WorldSession::HandleBattlegroundArenaJoin(WorldPacket& recv_data)
             sLog.outDebug("Battleground: arena team id %u, leader %s queued with rating %u for type %u", _player->GetArenaTeamId(arenaslot), _player->GetName(), arenaRating, arenatype);
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* member = itr->getSource();
+            Player* member = itr->GetSource();
             if (!member) continue;
 
             uint32 queueSlot = member->AddBattlegroundQueueId(bgQueueTypeId);// add to queue

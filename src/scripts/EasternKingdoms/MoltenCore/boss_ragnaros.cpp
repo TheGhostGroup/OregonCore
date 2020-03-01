@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -138,7 +138,7 @@ struct boss_ragnarosAI : public Scripted_NoMovementAI
         if (WasBanished && Attack_Timer <= diff)
         {
             //Become unbanished again
-            me->setFaction(14);
+            me->SetFaction(14);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             DoCast(me, SPELL_RAGEMERGE);
             WasBanished = false;
@@ -212,7 +212,7 @@ struct boss_ragnarosAI : public Scripted_NoMovementAI
             me->InterruptNonMeleeSpells(false);
             //Root self
             DoCast(me, 23973);
-            me->setFaction(35);
+            me->SetFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
 
@@ -259,12 +259,12 @@ struct boss_ragnarosAI : public Scripted_NoMovementAI
         else Submerge_Timer -= diff;
 
         //If we are within range melee the target
-        if (me->IsWithinMeleeRange(me->getVictim()))
+        if (me->IsWithinMeleeRange(me->GetVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
             if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
             {
-                me->AttackerStateUpdate(me->getVictim());
+                me->AttackerStateUpdate(me->GetVictim());
                 me->resetAttackTimer();
             }
         }

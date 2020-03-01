@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -30,7 +30,7 @@
 #include "AccountMgr.h"
 #include "SystemConfig.h"
 #include "revision.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "Spell.h"
 
 bool ChatHandler::HandleHelpCommand(const char* args)
@@ -67,7 +67,7 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
     Player* chr = m_session->GetPlayer();
 
-    if (chr->isInFlight())
+    if (chr->IsInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
@@ -81,8 +81,8 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
         return false;
     }
 
-    // cast spell Stuck
-    chr->CastSpell(chr, 7355, false);
+    // Teleport to starting location
+    chr->TeleportTo(chr->GetStartPosition());
     return true;
 }
 
@@ -123,7 +123,7 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
         return false;
     }
 
-    if (m_session->GetPlayer()->isInFlight())
+    if (m_session->GetPlayer()->IsInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
@@ -167,7 +167,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
     for (HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (itr->second->GetSession()->GetSecurity() &&
-            (itr->second->isGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST)) &&
+            (itr->second->IsGameMaster() || sWorld.getConfig(CONFIG_GM_IN_GM_LIST)) &&
             (!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())))
         {
             if (first)

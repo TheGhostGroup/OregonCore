@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -54,7 +54,7 @@
 #include "InstanceSaveMgr.h"
 #include "SmartAI.h"
 #include "TicketMgr.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "Language.h"
 #include "CreatureGroups.h"
 #include "Transports.h"
@@ -65,6 +65,7 @@
 #include "DisableMgr.h"
 #include "ConditionMgr.h"
 #include "VMapManager2.h"
+#include "M2Stores.h"
 
 #include <ace/Dirent.h>
 
@@ -551,12 +552,12 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_INTERVAL_SAVE] = sConfig.GetIntDefault("PlayerSaveInterval", 900000);
     m_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfig.GetIntDefault("DisconnectToleranceInterval", 0);
 
-    m_configs[CONFIG_INTERVAL_GRIDCLEAN] = sConfig.GetIntDefault("GridCleanUpDelay", 300000);
-    if (m_configs[CONFIG_INTERVAL_GRIDCLEAN] < MIN_GRID_DELAY)
-    {
-        sLog.outError("GridCleanUpDelay (%i) must be greater %u. Use this minimal value.", m_configs[CONFIG_INTERVAL_GRIDCLEAN], MIN_GRID_DELAY);
-        m_configs[CONFIG_INTERVAL_GRIDCLEAN] = MIN_GRID_DELAY;
-    }
+    m_configs[CONFIG_INTERVAL_GRIDCLEAN] = sConfig.GetIntDefault("GridCleanUpDelay", 60000);
+    //if (m_configs[CONFIG_INTERVAL_GRIDCLEAN] < MIN_GRID_DELAY)
+    //{
+    //    sLog.outError("GridCleanUpDelay (%i) must be greater %u. Use this minimal value.", m_configs[CONFIG_INTERVAL_GRIDCLEAN], MIN_GRID_DELAY);
+    //    m_configs[CONFIG_INTERVAL_GRIDCLEAN] = MIN_GRID_DELAY;
+    //}
     if (reload)
         MapManager::Instance().SetGridCleanUpDelay(m_configs[CONFIG_INTERVAL_GRIDCLEAN]);
 
@@ -735,7 +736,9 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_START_ARENA_POINTS] = m_configs[CONFIG_MAX_ARENA_POINTS];
     }
 
+    // Custom Flight Path Config Options
     m_configs[CONFIG_ALL_TAXI_PATHS] = sConfig.GetBoolDefault("AllFlightPaths", false);
+    m_configs[CONFIG_INSTANT_TAXI] = sConfig.GetBoolDefault("InstantFlightPaths", false);
 
     m_configs[CONFIG_INSTANCE_IGNORE_LEVEL] = sConfig.GetBoolDefault("Instance.IgnoreLevel", false);
     m_configs[CONFIG_INSTANCE_IGNORE_RAID]  = sConfig.GetBoolDefault("Instance.IgnoreRaid", false);
@@ -1229,6 +1232,8 @@ void World::SetInitialWorldSettings()
     MMAP::MMapManager* mmmgr = MMAP::MMapFactory::createOrGetMMapManager();
     mmmgr->InitializeThreadUnsafe(mapIds);
 
+    LoadM2Cameras(m_dataPath);
+
     sConsole.SetLoadingLabel("Loading Script Names...");
     sObjectMgr.LoadScriptNames();
 
@@ -1253,6 +1258,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr.LoadNpcTextLocales();
     sObjectMgr.LoadPageTextLocales();
     sObjectMgr.LoadGossipMenuItemsLocales();
+    sObjectMgr.LoadPointOfInterestLocales();
     sObjectMgr.SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sConsole.SetLoadingLabel(">>> Localization strings loaded");
 
@@ -1319,6 +1325,12 @@ void World::SetInitialWorldSettings()
     sConsole.SetLoadingLabel("Loading Creature Reputation OnKill Data...");
     sObjectMgr.LoadReputationOnKill();
 
+    sConsole.SetLoadingLabel("Loading Reputation Spillover Data...");
+    sObjectMgr.LoadReputationSpilloverTemplate();
+
+    sConsole.SetLoadingLabel("Loading Points Of Interest Data...");
+    sObjectMgr.LoadPointsOfInterest();
+
     sConsole.SetLoadingLabel("Loading Pet Create Spells...");
     sObjectMgr.LoadPetCreateSpells();
 
@@ -1358,8 +1370,8 @@ void World::SetInitialWorldSettings()
     sConsole.SetLoadingLabel("Checking Quest Disables");
     sDisableMgr.CheckQuestDisables();                       // must be after loading quests
 
-    sConsole.SetLoadingLabel("Loading Quests Relations...");
-    sObjectMgr.LoadQuestRelations();                            // must be after quest load
+    sConsole.SetLoadingLabel("Loading Quests Starters and Enders...");
+    sObjectMgr.LoadQuestStartersAndEnders();                    // must be after quest load
 
     sConsole.SetLoadingLabel("Loading Quest Pooling Data...");
     sPoolMgr.LoadQuestPools();
@@ -1587,7 +1599,7 @@ void World::SetInitialWorldSettings()
     mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     sLog.outDebug("Mail timer set to: %u, mail return is called every %u minutes", mail_timer, mail_timer_expires);
 
-    // Initilize static helper structures
+    // Initialize static helper structures
     AIRegistry::Initialize();
     Player::InitVisibleBits();
 

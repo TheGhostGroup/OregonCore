@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -39,7 +39,7 @@ bool AreaTrigger_at_malfurion_stormrage(Player* pPlayer, const AreaTriggerEntry*
     if (/*ScriptedInstance* pInstance = */pPlayer->GetInstanceData())
     {
         if (!pPlayer->FindNearestCreature(15362, 15))
-            pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+            pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
         return false;
     }
     return false;

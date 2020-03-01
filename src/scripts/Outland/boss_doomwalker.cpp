@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -166,7 +166,7 @@ struct boss_doomwalkerAI : public ScriptedAI
             pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
             if (!pTarget)
-                pTarget = me->getVictim();
+                pTarget = me->GetVictim();
 
             if (pTarget)
                 DoCast(pTarget, SPELL_CHAIN_LIGHTNING);

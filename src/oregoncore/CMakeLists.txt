@@ -8,7 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources_localdir *.cpp *.h)
+file(GLOB sources_localdir
+  *.cpp
+  RegressionTests/*.cpp
+)
 
 set(oregon-core_SRCS
   ${oregon-core_SRCS}
@@ -90,7 +93,7 @@ endif()
 if( WIN32 )
   add_custom_command(TARGET oregon-core
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/oregoncore.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/oregoncore.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
   )
 endif()
 

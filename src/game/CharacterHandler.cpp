@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -37,7 +37,7 @@
 #include "SharedDefines.h"
 #include "SocialMgr.h"
 #include "UpdateMask.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "MapManager.h"
 #include "SystemConfig.h"
 #include "ScriptMgr.h"
@@ -84,7 +84,7 @@ bool LoginQueryHolder::Initialize()
                      "FROM characters WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADGROUP,           "SELECT leaderGuid FROM group_member WHERE memberGuid ='%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADBOUNDINSTANCES,  "SELECT id, permanent, map, difficulty, resettime FROM character_instance LEFT JOIN instance ON instance = id WHERE guid = '%u'", GUID_LOPART(m_guid));
-    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS,           "SELECT caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'", GUID_LOPART(m_guid));
+    res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADAURAS,           "SELECT caster_guid,item_caster_guid,spell,effect_index,stackcount,amount,maxduration,remaintime,remaincharges FROM character_aura WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADSPELLS,          "SELECT spell,active,disabled FROM character_spell WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS,     "SELECT quest,status,rewarded,explored,timer,mobcount1,mobcount2,mobcount3,mobcount4,itemcount1,itemcount2,itemcount3,itemcount4 FROM character_queststatus WHERE guid = '%u'", GUID_LOPART(m_guid));
     res &= SetPQuery(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS, "SELECT quest,time FROM character_queststatus_daily WHERE guid = '%u'", GUID_LOPART(m_guid));
@@ -601,7 +601,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
         }
     }
 
-    if (!pCurrChar->GetMap()->AddToMap(pCurrChar))
+    if (!pCurrChar->GetMap()->AddPlayerToMap(pCurrChar))
     {
         // normal delayed teleport protection not applied (and this correct) for this case (Player object just created)
         AreaTrigger const* at = sObjectMgr.GetGoBackTrigger(pCurrChar->GetMapId());
@@ -660,18 +660,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->LoadCorpse();
 
     // setting Ghost+speed if dead
-    if (pCurrChar->m_deathState != ALIVE)
-    {
-        // not blizz like, we must correctly save and load player instead...
-        if (pCurrChar->getRace() == RACE_NIGHTELF)
-        {
-            pCurrChar->CastSpell(pCurrChar, 20584, true, 0);// auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
-        }
-
-        pCurrChar->CastSpell(pCurrChar, 8326, true, 0);     // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
-
+    if (pCurrChar->m_deathState == DEAD)
         pCurrChar->SetWaterWalking(true);
-    }
 
     pCurrChar->ContinueTaxiFlight();
 
@@ -679,7 +669,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     pCurrChar->LoadPet();
 
     // Set FFA PvP for non GM in non-rest mode
-    if (sWorld.IsFFAPvPRealm() && !pCurrChar->isGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
+    if (sWorld.IsFFAPvPRealm() && !pCurrChar->IsGameMaster() && !pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING))
         pCurrChar->SetFFAPvP(true);
 
     if (pCurrChar->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP))
@@ -716,48 +706,48 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     //Reputations if "StartAllReputation" is enabled
     if (sWorld.getConfig(CONFIG_START_ALL_REP))
     {
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(942), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(935), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(936), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(1011), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(970), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(967), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(989), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(932), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(934), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(1038), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(1077), 42999);
-        pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(990), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(942), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(935), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(936), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(1011), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(970), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(967), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(989), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(932), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(934), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(1038), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(1077), 42999);
+        pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(990), 42999);
 
         // Factions depending on team, like cities and some more stuff
         switch (pCurrChar->GetTeam())
         {
         case ALLIANCE:
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(72), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(47), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(69), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(930), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(730), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(978), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(54), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(946), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(72), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(47), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(69), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(930), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(730), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(978), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(54), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(946), 42999);
             break;
         case HORDE:
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(76), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(68), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(81), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(911), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(729), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(941), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(530), 42999);
-            pCurrChar->SetFactionReputation(sFactionStore.LookupEntry(947), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(76), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(68), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(81), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(911), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(729), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(941), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(530), 42999);
+            pCurrChar->GetReputationMgr().SetReputation(sFactionStore.LookupEntry(947), 42999);
             break;
         default:
             break;
         }
     }
 
-    if (pCurrChar->isGameMaster())
+    if (pCurrChar->IsGameMaster())
         SendNotification(LANG_GM_ON);
 
     if (!pCurrChar->isGMVisible())
@@ -771,6 +761,13 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
                  GetAccountId(), IP_str.c_str(), pCurrChar->GetName(), pCurrChar->GetGUIDLow());
 
     m_playerLoading = false;
+
+    // if we're loading a dead player, repop them to the GY after the load is finished
+    if (pCurrChar->getDeathState() == CORPSE)
+    {
+        pCurrChar->BuildPlayerRepop();
+        pCurrChar->RepopAtGraveyard();
+    }
 
     //Hook for OnLogin Event
     sScriptMgr.OnLogin(pCurrChar);
@@ -788,15 +785,7 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket& recv_data)
     recv_data >> repListID;
     recv_data >> flag;
 
-    FactionStateList::iterator itr = GetPlayer()->m_factions.find(repListID);
-    if (itr == GetPlayer()->m_factions.end())
-        return;
-
-    // always invisible or hidden faction can't change war state
-    if (itr->second.Flags & (FACTION_FLAG_INVISIBLE_FORCED | FACTION_FLAG_HIDDEN))
-        return;
-
-    GetPlayer()->SetFactionAtWar(&itr->second, flag);
+    GetPlayer()->GetReputationMgr().SetAtWar(repListID, flag != 0);
 }
 
 void WorldSession::HandleMeetingStoneInfo(WorldPacket& /*recv_data*/)
@@ -855,11 +844,8 @@ void WorldSession::HandleSetWatchedFactionInactiveOpcode(WorldPacket& recv_data)
     uint8 inactive;
     recv_data >> replistid >> inactive;
 
-    FactionStateList::iterator itr = _player->m_factions.find(replistid);
-    if (itr == _player->m_factions.end())
-        return;
 
-    _player->SetFactionInactive(&itr->second, inactive);
+    _player->GetReputationMgr().SetInactive(replistid, inactive != 0);
 }
 
 void WorldSession::HandleToggleHelmOpcode(WorldPacket& /*recv_data*/)

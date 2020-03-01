@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -75,7 +75,7 @@ struct boss_halyconAI : public ScriptedAI
         else MightyBlow_Timer -= diff;
 
         //Summon Gizrul
-        if (!Summoned && me->GetHealth() * 100 / me->GetMaxHealth() < 25)
+        if (!Summoned && HealthBelowPct(25))
         {
             me->SummonCreature(10268, ADD_1X, ADD_1Y, ADD_1Z, ADD_1O, TEMPSUMMON_TIMED_DESPAWN, 300000);
             Summoned = true;

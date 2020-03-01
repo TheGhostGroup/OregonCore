@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -35,10 +35,10 @@ EndScriptData */
 
 bool GossipHello_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pCreature->isVendor() && pPlayer->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
+    if (pCreature->IsVendor() && pPlayer->GetQuestStatus(3909) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
     pPlayer->SEND_GOSSIP_MENU(2433, pCreature->GetGUID());
@@ -93,21 +93,21 @@ struct npc_oox22feAI : public npc_escortAI
         case 11:
             DoScriptText(SAY_OOX_AMBUSH, me);
             for (uint8 i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_YETI, -4887.69, 1598.1, 67.45, 0.68, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_YETI, -4887.69f, 1598.1f, 67.45f, 0.68f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
             break;
         //Second Ambush(3 Gorillas)
         case 21:
             DoScriptText(SAY_OOX_AMBUSH, me);
             for (uint8 i = 0; i < 3; ++i)
-                me->SummonCreature(NPC_GORILLA, -4599.37, 2010.59, 52.77, 3.84, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_GORILLA, -4599.37f, 2010.59f, 52.77f, 3.84f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
             break;
         //Third Ambush(4 Gnolls)
         case 30:
             DoScriptText(SAY_OOX_AMBUSH, me);
-            me->SummonCreature(NPC_WOODPAW_REAVER, -4425.14, 2075.87, 47.77, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-            me->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68, 2077.98, 47.57, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-            me->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33, 2080.24, 47.43, 3.87, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-            me->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04, 2075.54, 46.83, 3.81, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            me->SummonCreature(NPC_WOODPAW_REAVER, -4425.14f, 2075.87f, 47.77f, 3.77f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            me->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68f, 2077.98f, 47.57f, 3.77f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            me->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33f, 2080.24f, 47.43f, 3.87f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            me->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04f, 2075.54f, 46.83f, 3.81f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
             break;
         case 37:
             DoScriptText(SAY_OOX_END, me);
@@ -146,7 +146,7 @@ bool QuestAccept_npc_oox22fe(Player* pPlayer, Creature* pCreature, const Quest* 
 {
     if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
     {
-        pCreature->setFaction(113);
+        pCreature->SetFaction(113);
         pCreature->SetHealth(pCreature->GetMaxHealth());
         pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -190,7 +190,7 @@ void AddSC_feralas()
     newscript = new Script;
     newscript->Name = "npc_oox22fe";
     newscript->GetAI = &GetAI_npc_oox22fe;
-    newscript->pQuestAccept = &QuestAccept_npc_oox22fe;
+    newscript->QuestAccept = &QuestAccept_npc_oox22fe;
     newscript->RegisterSelf();
 
     newscript = new Script;

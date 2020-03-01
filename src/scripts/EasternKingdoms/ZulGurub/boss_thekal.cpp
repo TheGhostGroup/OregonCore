@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -100,8 +100,8 @@ void Resurrect(Unit* Target)
     Target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     Target->SetStandState(UNIT_STAND_STATE_STAND);
 
-    if (Target->getVictim())
-        Target->GetMotionMaster()->MoveChase(Target->getVictim());
+    if (Target->GetVictim())
+        Target->GetMotionMaster()->MoveChase(Target->GetVictim());
 
     Target->SetHealth(int(Target->GetMaxHealth() * 1.0f));
     if (Target->GetMaxPower(POWER_MANA) > 0)
@@ -211,8 +211,14 @@ struct boss_thekalAI : public ScriptedAI
                 Resurrect(me);
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                 const CreatureInfo* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + ((cinfo->mindmg / 100) * 40)));
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + ((cinfo->maxdmg / 100) * 40)));
+                CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), cinfo->unit_class, cinfo->exp);
+                float basedamage = cCLS->BaseDamage;
+
+                float weaponBaseMinDamage = basedamage;
+                float weaponBaseMaxDamage = basedamage * 1.5;
+
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (weaponBaseMinDamage + ((weaponBaseMinDamage / 100) * 40)));
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (weaponBaseMaxDamage + ((weaponBaseMaxDamage / 100) * 40)));                
                 me->UpdateDamagePhysical(BASE_ATTACK);
                 DoResetThreat();
                 PhaseTwo = true;
@@ -595,8 +601,8 @@ struct mob_zealot_zathAI : public ScriptedAI
         {
             DoCastVictim( SPELL_GOUGE);
 
-            if (DoGetThreat(me->getVictim()))
-                DoModifyThreatPercent(me->getVictim(), -100);
+            if (DoGetThreat(me->GetVictim()))
+                DoModifyThreatPercent(me->GetVictim(), -100);
 
             Gouge_Timer = 17000 + rand() % 10000;
         }

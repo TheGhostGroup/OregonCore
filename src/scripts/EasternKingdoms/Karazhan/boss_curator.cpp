@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -159,7 +159,7 @@ struct boss_curatorAI : public ScriptedAI
             }
             else AddTimer -= diff;
 
-            if (me->GetHealth() * 100 / me->GetMaxHealth() <= 15)
+            if (HealthBelowPct(15))
             {
                 Enraged = true;
                 DoCast(me, SPELL_ENRAGE);

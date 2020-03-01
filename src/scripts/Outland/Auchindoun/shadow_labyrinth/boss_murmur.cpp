@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -159,7 +159,7 @@ struct boss_murmurAI : public Scripted_NoMovementAI
         // Select nearest most aggro target if top aggro too far
         if (!me->isAttackReady())
             return;
-        if (!me->IsWithinMeleeRange(me->getVictim()))
+        if (!me->IsWithinMeleeRange(me->GetVictim()))
         {
             ThreatContainer::StorageType threatlist = me->getThreatManager().getThreatList();
             for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)

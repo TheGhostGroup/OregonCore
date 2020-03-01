@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -68,10 +68,10 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
         //Spirit_Timer
         if (Spirit_Timer <= diff)
         {
-            SummonSpirits(me->getVictim());
-            SummonSpirits(me->getVictim());
-            SummonSpirits(me->getVictim());
-            SummonSpirits(me->getVictim());
+            SummonSpirits(me->GetVictim());
+            SummonSpirits(me->GetVictim());
+            SummonSpirits(me->GetVictim());
+            SummonSpirits(me->GetVictim());
 
             Spirit_Timer = 30000;
         }

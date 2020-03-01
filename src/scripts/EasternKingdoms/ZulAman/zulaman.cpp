@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -234,7 +234,7 @@ struct npc_harrison_jonesAI : public ScriptedAI
 
         Group* group = player->GetGroup();
 
-        if (!group || group->IsLeader(player->GetGUID()) || player->isGameMaster())
+        if (!group || group->IsLeader(player->GetGUID()) || player->IsGameMaster())
         {
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HARRISON, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(me), me->GetGUID());

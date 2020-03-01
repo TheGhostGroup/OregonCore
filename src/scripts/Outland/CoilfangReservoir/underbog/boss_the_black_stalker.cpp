@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -74,8 +74,8 @@ struct boss_the_black_stalkerAI : public ScriptedAI
             Striders.push_back(summon->GetGUID());
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
                 summon->AI()->AttackStart(pTarget);
-            else if (me->getVictim())
-                summon->AI()->AttackStart(me->getVictim());
+            else if (me->GetVictim())
+                summon->AI()->AttackStart(me->GetVictim());
         }
     }
 

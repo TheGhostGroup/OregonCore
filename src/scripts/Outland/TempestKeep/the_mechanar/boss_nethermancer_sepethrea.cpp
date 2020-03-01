@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -241,7 +241,7 @@ struct mob_ragin_flamesAI : public ScriptedAI
         if (inferno_Timer <= diff)
         {
             DoCastVictim(HeroicMode ? H_SPELL_INFERNO : SPELL_INFERNO);
-            me->TauntApply(me->getVictim());
+            me->TauntApply(me->GetVictim());
             inferno_Timer = 10000;
         }
         else inferno_Timer -= diff;

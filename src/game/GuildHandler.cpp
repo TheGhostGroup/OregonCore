@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -1349,10 +1349,9 @@ void WorldSession::HandleGuildBankDepositItem(WorldPacket& recv_data)
                 {
                     pl->MoveItemFromInventory(PlayerBag, PlayerSlot, true);
                     pItemChar->DeleteFromInventoryDB();
+                    pGuild->StoreItem(BankTab, gDest, pItemChar);
                 }
 
-                if (pItemChar)
-                    pGuild->StoreItem(BankTab, gDest, pItemChar);
                 pl->MoveItemToInventory(iDest, pItemBank, true);
                 pl->SaveInventoryAndGoldToDB();
 

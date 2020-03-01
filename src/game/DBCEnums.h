@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DBCENUMS_H
@@ -30,6 +30,23 @@
 // Server side limitation. Base at used code requirements.
 // also see MAX_LEVEL and GT_MAX_LEVEL define
 #define STRONG_MAX_LEVEL 255
+
+#pragma pack(push, 1)
+
+struct DBCPosition2D
+{
+    float X;
+    float Y;
+};
+
+struct DBCPosition3D
+{
+    float X;
+    float Y;
+    float Z;
+};
+
+#pragma pack(pop)
 
 enum AreaTeams
 {
@@ -66,7 +83,9 @@ enum AreaFlags
 
 enum FactionTemplateFlags
 {
-    FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   =   0x00001000, // faction will attack players that were involved in PvP combats
+    FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
+    FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
+    FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000,
 };
 
 enum FactionMasks

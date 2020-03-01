@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 #include "ByteBuffer.h"
 #include "ReactorAI.h"
@@ -22,7 +22,7 @@
 int
 ReactorAI::Permissible(const Creature* creature)
 {
-    if (creature->isCivilian() || creature->IsNeutralToAll())
+    if (creature->IsCivilian() || creature->IsNeutralToAll())
         return PERMIT_BASE_REACTIVE;
 
     return PERMIT_BASE_NO;
@@ -36,15 +36,15 @@ ReactorAI::MoveInLineOfSight(Unit*)
 void
 ReactorAI::UpdateAI(const uint32 /*time_diff*/)
 {
-    // update i_victimGuid if me->getVictim() != 0 and changed
+    // update i_victimGuid if me->GetVictim() != 0 and changed
     if (!UpdateVictim())
         return;
 
     if (me->isAttackReady())
     {
-        if (me->IsWithinMeleeRange(me->getVictim()))
+        if (me->IsWithinMeleeRange(me->GetVictim()))
         {
-            me->AttackerStateUpdate(me->getVictim());
+            me->AttackerStateUpdate(me->GetVictim());
             me->resetAttackTimer();
         }
     }

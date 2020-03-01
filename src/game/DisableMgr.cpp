@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "SpellMgr.h"
@@ -253,7 +253,7 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit* pUnit, uint
         if (!pUnit)
             return true;
         if (Player const* pPlayer = pUnit->ToPlayer())
-            if (pPlayer->isGameMaster())
+            if (pPlayer->IsGameMaster())
                 return false;
         return true;
     case DISABLE_TYPE_BATTLEGROUND:

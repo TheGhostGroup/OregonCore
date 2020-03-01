@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "MMapCommon.h"
@@ -250,7 +250,7 @@ int main(int argc, char** argv)
 {
     int mapnum = -1;
     int threads = 1;
-    float maxAngle = 55.0f;
+    float maxAngle = 60.0f;
     int tileX = -1, tileY = -1;
     bool skipLiquid = false,
          skipContinents = false,

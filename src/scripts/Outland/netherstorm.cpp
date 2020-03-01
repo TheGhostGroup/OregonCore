@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -433,7 +433,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
         cell.SetNoCreate();
 
         Oregon::NearestCreatureEntryWithLiveStateInObjectRangeCheck creature_check(*me, entry, true, range);
-        Oregon::CreatureLastSearcher<Oregon::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pCreature, creature_check);
+        Oregon::CreatureLastSearcher<Oregon::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(me, pCreature, creature_check);
         TypeContainerVisitor<Oregon::CreatureLastSearcher<Oregon::NearestCreatureEntryWithLiveStateInObjectRangeCheck>, GridTypeMapContainer> creature_searcher(searcher);
         cell.Visit(pair, creature_searcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
@@ -707,7 +707,7 @@ bool AreaTrigger_at_commander_dawnforge(Player* player, const AreaTriggerEntry* 
 
 bool GossipHello_npc_professor_dabiri(Player* player, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         player->PrepareQuestMenu(pCreature->GetGUID());
 
     if (player->GetQuestStatus(QUEST_ON_NETHERY_WINGS) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(29778, 1))
@@ -825,7 +825,7 @@ struct npc_phase_hunterAI : public ScriptedAI
 
         if (ManaBurnTimer <= diff)
         {
-            if (me->getVictim()->getPowerType() == POWER_MANA && me->getVictim()->GetPower(POWER_MANA) > 0)
+            if (me->GetVictim()->getPowerType() == POWER_MANA && me->GetVictim()->GetPower(POWER_MANA) > 0)
             {
                 DoCastVictim(SPELL_MANA_BURN);
                 urand(8000, 18000);
@@ -934,7 +934,7 @@ bool QuestAccept_npc_bessy(Player* pPlayer, Creature* pCreature, Quest const* qu
 {
     if (quest->GetQuestId() == Q_ALMABTRIEB)
     {
-        pCreature->setFaction(113);
+        pCreature->SetFaction(113);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
     }
@@ -1032,7 +1032,7 @@ bool QuestAccept_npc_maxx_a_million_escort(Player* pPlayer, Creature* pCreature,
     {
         if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escortAI, pCreature->AI()))
         {
-            pCreature->setFaction(113);
+            pCreature->SetFaction(113);
             pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
         }
     }
@@ -1141,13 +1141,13 @@ struct npc_dr_boomAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (!me->IsWithinDistInMap(me->getVictim(), 30.0f))
+        if (!me->IsWithinDistInMap(me->GetVictim(), 30.0f))
         {
             EnterEvadeMode();
             return;
         }
 
-        if (me->isAttackReady() && me->IsWithinDistInMap(me->getVictim(), 13.0f))
+        if (me->isAttackReady() && me->IsWithinDistInMap(me->GetVictim(), 13.0f))
         {
             DoCastVictim( THROW_DYNAMITE, true);
             me->resetAttackTimer();
@@ -1196,7 +1196,7 @@ struct npc_boom_botAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (!pWho->isCharmedOwnedByPlayerOrPlayer())
+        if (!pWho->IsCharmedOwnedByPlayerOrPlayer())
             return;
 
         if (me->IsWithinDistInMap(pWho, 4.0f, false))
@@ -1285,18 +1285,18 @@ struct npc_drijyaAI : public npc_escortAI
     void SpawnImp()
     {
         ++Count;
-        me->SummonCreature(NPC_IMP, 3025.752f, 2715.122, 113.758, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+        me->SummonCreature(NPC_IMP, 3025.752f, 2715.122f, 113.758f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
     }
 
     void SpawnTrooper()
     {
         ++Count;
-        me->SummonCreature(NPC_TROOPER, 3025.752f, 2715.122, 113.758, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+        me->SummonCreature(NPC_TROOPER, 3025.752f, 2715.122f, 113.758f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
     }
 
     void SpawnDestroyer()
     {
-        me->SummonCreature(NPC_DESTROYER, 3019.741f, 2720.757, 115.189, 2.5f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+        me->SummonCreature(NPC_DESTROYER, 3019.741f, 2720.757f, 115.189f, 2.5f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -1464,7 +1464,7 @@ bool QuestAccept_npc_drijya(Player* pPlayer, Creature* pCreature, const Quest* p
     {
         if (npc_drijyaAI* pEscortAI = dynamic_cast<npc_drijyaAI*>(pCreature->AI()))
         {
-            pCreature->setFaction(113);
+            pCreature->SetFaction(113);
             pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
         }
     }
@@ -1578,7 +1578,7 @@ struct npc_scrapped_fel_reaverAI : public ScriptedAI
 		if (me->GetEntry() == NPC_SCRAPPER)
 			me->UpdateEntry(NPC_SCRAPPER_FEL);
 
-		me->setFaction(16);
+		me->SetFaction(16);
 
 		spellHit = false;
 		CanSummon = false;
@@ -1877,103 +1877,6 @@ CreatureAI* GetAI_npc_naberius(Creature* pCreature)
 }
 
 /*######
-## npc_towercurse_trigger
-######*/
-
-#define SPELL_CURSE_OF_THE_VIOLET_TOWER 34102
-
-
-struct npc_towercurse_triggerAI : public ScriptedAI
-{
-	npc_towercurse_triggerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-	void Reset()
-	{
-		me->SetReactState(REACT_AGGRESSIVE);
-	}
-
-	void MoveInLineOfSight(Unit *pWho)
-	{
-		if (Player *plWho = pWho->GetCharmerOrOwnerPlayerOrPlayerItself())
-		{
-			if (plWho->GetDistance(me) < 3.0f)
-			{
-				switch (me->GetEntry())
-				{
-				case 61016:	
-					plWho->CastSpell(plWho, SPELL_CURSE_OF_THE_VIOLET_TOWER, true);
-					break;
-				}
-			}
-		}
-	}
-};
-
-CreatureAI* GetAI_npc_towercurse_trigger(Creature* pCreature)
-{
-	return new npc_towercurse_triggerAI(pCreature);
-}
-
-/*######
-## npc_towerchannel_trigger
-######*/
-
-#define SPELL_ETHEREAL_CHANNEL 35518
-
-
-struct npc_towerchannel_triggerAI : public ScriptedAI
-{
-	npc_towerchannel_triggerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-	void Reset()
-	{
-		
-	}
-
-	void UpdateAI(const uint32 diff)
-	{
-		if (!UpdateVictim())
-		{
-			if (Creature* channeler = me->FindNearestCreature(61018, 8.0f, true))
-			{
-				DoCast(channeler, SPELL_ETHEREAL_CHANNEL);
-			}
-		}
-	}
-};
-
-CreatureAI* GetAI_npc_towerchannel_trigger(Creature* pCreature)
-{
-	return new npc_towerchannel_triggerAI(pCreature);
-}
-
-struct npc_towerchanneler_triggerAI : public ScriptedAI
-{
-	npc_towerchanneler_triggerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-	void Reset()
-	{
-
-	}
-
-	void UpdateAI(const uint32 diff)
-	{
-		if (!UpdateVictim())
-		{
-			if (Creature* channel = me->FindNearestCreature(19656, 12.0f, true))
-			{
-				DoCast(channel, SPELL_ETHEREAL_CHANNEL);
-			}
-		}
-	}
-};
-
-CreatureAI* GetAI_npc_towerchanneler_trigger(Creature* pCreature)
-{
-	return new npc_towerchanneler_triggerAI(pCreature);
-}
-
-/*######
 ## QUEST_YOU_ROBOT!
 ######*/
 
@@ -2040,7 +1943,7 @@ struct npc_negatronAI : public ScriptedAI
 		me->MonsterYell(NEGATRON_TEXT, LANG_UNIVERSAL, 0);
 		me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 		me->SetReactState(REACT_DEFENSIVE);
-		me->setFaction(35);
+		me->SetFaction(35);
 
 		yelled = false;
 		start_timer = 0;
@@ -2084,7 +1987,7 @@ struct npc_negatronAI : public ScriptedAI
 
 			if (yelled == true && start_timer <= diff)
 			{
-				me->setFaction(14);
+				me->SetFaction(14);
 				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				me->SetReactState(REACT_AGGRESSIVE);
 			}
@@ -2225,7 +2128,7 @@ struct npc_talbuk_sireAI : public ScriptedAI
 		me->RemoveAllAuras();
 		me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 		me->SetStandState(UNIT_STAND_STATE_STAND);
-		me->setFaction(14);
+		me->SetFaction(14);
 		reset_timer = 0;
 		stun_timer = urand(8000, 10000);
 	}
@@ -2247,7 +2150,7 @@ struct npc_talbuk_sireAI : public ScriptedAI
 			
 			me->MonsterTextEmote(EMOTE_TALBUK_SIRE, 0, false);
 			me->CombatStop();
-			me->setFaction(35);
+			me->SetFaction(35);
 			DoCast(me, 20373);
 			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 			me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -2300,7 +2203,7 @@ struct npc_talbuk_doeAI : public ScriptedAI
 		me->RemoveAllAuras();
 		me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 		me->SetStandState(UNIT_STAND_STATE_STAND);
-		me->setFaction(15);
+		me->SetFaction(15);
 		reset_timer = 0;
 		gore_timer = urand(4000, 7000);
 	}
@@ -2322,7 +2225,7 @@ struct npc_talbuk_doeAI : public ScriptedAI
 
 			me->MonsterTextEmote(EMOTE_TALBUK_DOE, 0, false);
 			me->CombatStop();
-			me->setFaction(35);
+			me->SetFaction(35);
 			DoCast(me, 20373);
 			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 			me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -2544,7 +2447,7 @@ struct npc_socretharAI : public ScriptedAI
 
 	void Reset()
 	{
-		me->setFaction(35);
+		me->SetFaction(35);
 
 		// Event
 		EventStarted = false;
@@ -2607,7 +2510,7 @@ struct npc_socretharAI : public ScriptedAI
 				case 20132:
 					if (!scryer_start)
 					{
-						me->setFaction(14);	
+						me->SetFaction(14);	
 						scryer_start = true;
 					}
 					break;
@@ -2675,7 +2578,7 @@ struct npc_socretharAI : public ScriptedAI
 					if (Creature* kaylaan = me->FindNearestCreature(NPC_KAYLAAN, 20.0f, true))
 					{
 						DoCast(kaylaan, SPELL_POWER_OF_THE_LEGION);
-						kaylaan->setFaction(14);
+						kaylaan->SetFaction(14);
 
 						if (Creature* adyen = me->FindNearestCreature(NPC_ADYEN_THE_LIGHTWARDEN, 50.0f, true))
 						{
@@ -2755,6 +2658,7 @@ CreatureAI* GetAI_npc_socrethar(Creature* pCreature)
 #define KAYLAN_TEXT_4 "You're wrong, Adyen. My mind has never been clearer."
 #define KAYLAN_TEXT_5 "Yes... master."
 #define ADYEN_TEXT_3 "Socrethar is clouding your mind, Kaylaan! You do not mean these words! I remember training you when you were but a youngling. Your will was stron even then!"
+#define KAYLAAN_A_DARK_PACT_COMPLETE_TEXT "It is hopeless... I've done all I can."
 
 #define SPELL_HOLY_SLAM 37572
 #define SPELL_DIVINE_SHIELD 13874
@@ -2762,13 +2666,15 @@ CreatureAI* GetAI_npc_socrethar(Creature* pCreature)
 #define SPELL_AVENGERS_SHIELD 37554
 #define SPELL_RESSURECTION 35599
 
+#define QUEST_A_DARK_PACT 10380
+
 struct npc_kaylaanAI : public ScriptedAI
 {
 	npc_kaylaanAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
 	void Reset()
 	{
-		me->setFaction(35);
+		me->SetFaction(35);
 		me->SetReactState(REACT_AGGRESSIVE);
 		me->SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -3055,6 +2961,14 @@ CreatureAI* GetAI_npc_kaylaan(Creature* pCreature)
 	return new npc_kaylaanAI(pCreature);
 }
 
+bool ChooseReward_npc_kaylaan(Player* pPlayer, Creature* pCreature, Quest const* quest, uint32 /* item */)
+{
+	if (quest->GetQuestId() == QUEST_A_DARK_PACT)
+		pCreature->Say(KAYLAAN_A_DARK_PACT_COMPLETE_TEXT, LANG_UNIVERSAL, pPlayer->GetGUID());
+	
+	return false;
+}
+
 #define GOSSIP_ITEM_ALDOR_EVENT_START "I'm ready, Adyen."
 #define ADYEN_TEXT_2 "We may be few, Socrethar, but our faith is strong. Something you will never understand. Now that custom has been served, prepare to meet your end."
 
@@ -3208,7 +3122,7 @@ CreatureAI* GetAI_adyen_lightwarden(Creature* pCreature)
 
 bool GossipHello_adyen_lightwarden(Player* player, Creature* creature)
 {
-	if (creature->isQuestGiver())
+	if (creature->IsQuestGiver())
 		player->PrepareQuestMenu(creature->GetGUID());
 
 	if (player->GetQuestStatus(QUEST_DEATHBLOW_TO_THE_LEGION) == QUEST_STATUS_INCOMPLETE)
@@ -3371,7 +3285,7 @@ struct npc_windtrader_maridAI : public ScriptedAI
 	void Reset()
 	{
 		me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-		me->setFaction(1731);
+		me->SetFaction(1731);
 		me->SetReactState(REACT_DEFENSIVE);
 
 		PlayerGUID = 0;
@@ -3423,7 +3337,7 @@ struct npc_windtrader_maridAI : public ScriptedAI
 
 			if (marid_say_1 == true && !start_attack && attack_timer <= diff)
 			{
-				me->setFaction(14);
+				me->SetFaction(14);
 				me->SetReactState(REACT_AGGRESSIVE);
 				me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 				start_attack = true;
@@ -3442,7 +3356,7 @@ CreatureAI* GetAI_npc_windtrader_marid(Creature* pCreature)
 
 bool GossipHello_npc_windtrader_marid(Player* player, Creature* creature)
 {
-	if (creature->isQuestGiver())
+	if (creature->IsQuestGiver())
 		player->PrepareQuestMenu(creature->GetGUID());
 
 	if (player->GetQuestStatus(QUEST_TROUBLESOME_DISTRACTIONS) == QUEST_STATUS_INCOMPLETE)
@@ -3518,22 +3432,22 @@ CreatureAI* GetAI_npc_captured_protectorate(Creature* pCreature)
 {
 	npc_captured_protectorateAI* protectorateAI = new npc_captured_protectorateAI(pCreature);
 
-	protectorateAI->AddWaypoint(0, 4072.77, 2300.59, 111.727, 0);
-	protectorateAI->AddWaypoint(1, 4107.44, 2295.81, 106.518, 0);
-	protectorateAI->AddWaypoint(2, 4132.99, 2296.5, 103.481, 0);
-	protectorateAI->AddWaypoint(3, 4153.95, 2297.79, 102.345, 0);
-	protectorateAI->AddWaypoint(4, 4169.84, 2302.15, 104.521, 0); 
-	protectorateAI->AddWaypoint(5, 4188.36, 2302.81, 111.182, 0);
-	protectorateAI->AddWaypoint(6, 4207.3, 2297.2, 118.857, 0);
-	protectorateAI->AddWaypoint(7, 4227.99, 2295.01, 126.434, 0);
-	protectorateAI->AddWaypoint(8, 4246.5, 2292.62, 129.425, 0);
-	protectorateAI->AddWaypoint(9, 4263.98, 2290.41, 126.291, 0);
-	protectorateAI->AddWaypoint(10, 4277.22, 2278.08, 125.221, 0);
-	protectorateAI->AddWaypoint(11, 4284.31, 2252.51, 123.878, 0);
-	protectorateAI->AddWaypoint(12, 4286.75, 2234.23, 124.217, 0);
-	protectorateAI->AddWaypoint(13, 4276.17, 2217.82, 125.582, 0);
-	protectorateAI->AddWaypoint(14, 4263.86, 2196.86, 135.513, 0);
-	protectorateAI->AddWaypoint(15, 4254.55, 2180.13, 137.052, 0);
+	protectorateAI->AddWaypoint(0, 4072.77f, 2300.59f, 111.727f, 0);
+	protectorateAI->AddWaypoint(1, 4107.44f, 2295.81f, 106.518f, 0);
+	protectorateAI->AddWaypoint(2, 4132.99f, 2296.5f, 103.481f, 0);
+	protectorateAI->AddWaypoint(3, 4153.95f, 2297.79f, 102.345f, 0);
+	protectorateAI->AddWaypoint(4, 4169.84f, 2302.15f, 104.521f, 0); 
+	protectorateAI->AddWaypoint(5, 4188.36f, 2302.81f, 111.182f, 0);
+	protectorateAI->AddWaypoint(6, 4207.3f, 2297.2f, 118.857f, 0);
+	protectorateAI->AddWaypoint(7, 4227.99f, 2295.01f, 126.434f, 0);
+	protectorateAI->AddWaypoint(8, 4246.5f, 2292.62f, 129.425f, 0);
+	protectorateAI->AddWaypoint(9, 4263.98f, 2290.41f, 126.291f, 0);
+	protectorateAI->AddWaypoint(10, 4277.22f, 2278.08f, 125.221f, 0);
+	protectorateAI->AddWaypoint(11, 4284.31f, 2252.51f, 123.878f, 0);
+	protectorateAI->AddWaypoint(12, 4286.75f, 2234.23f, 124.217f, 0);
+	protectorateAI->AddWaypoint(13, 4276.17f, 2217.82f, 125.582f, 0);
+	protectorateAI->AddWaypoint(14, 4263.86f, 2196.86f, 135.513f, 0);
+	protectorateAI->AddWaypoint(15, 4254.55f, 2180.13f, 137.052f, 0);
 
 	return protectorateAI;
 }
@@ -3652,81 +3566,22 @@ CreatureAI* GetAI_npc_protectorate_demolitionist(Creature* pCreature)
 {
 	npc_protectorate_demolitionistAI* protectorateAI = new npc_protectorate_demolitionistAI(pCreature);
 
-	protectorateAI->AddWaypoint(0, 3982.6, 2330.1, 113.8, 7000);
-	protectorateAI->AddWaypoint(1, 3953.7, 2330.1, 113.9, 0);
-	protectorateAI->AddWaypoint(2, 3918.4, 2338.6, 113.5, 0);
-	protectorateAI->AddWaypoint(3, 3883.5, 2373.3, 114.0, 0);
-	protectorateAI->AddWaypoint(4, 3876.7, 2383.2, 113.9, 7000);
-	protectorateAI->AddWaypoint(5, 3854.6, 2349.8, 114.7, 0);
-	protectorateAI->AddWaypoint(6, 3867.1, 2334.6, 115.1, 0);
-	protectorateAI->AddWaypoint(7, 3872.9, 2321.5, 114.5, 5000);
-	protectorateAI->AddWaypoint(8, 3872.9, 2321.5, 114.5, 12000);
-	protectorateAI->AddWaypoint(9, 3872.9, 2321.5, 114.5, 0);
-	protectorateAI->AddWaypoint(10, 3861.2, 2349.6, 115.0, 5000);
-	protectorateAI->AddWaypoint(11, 3861.2, 2349.6, 115.0, 6000);
-	protectorateAI->AddWaypoint(12, 3861.2, 2349.6, 115.0, 1000);
-	protectorateAI->AddWaypoint(13, 3861.2, 2349.6, 115.0, 0);
+	protectorateAI->AddWaypoint(0, 3982.6f, 2330.1f, 113.8f, 7000);
+	protectorateAI->AddWaypoint(1, 3953.7f, 2330.1f, 113.9f, 0);
+	protectorateAI->AddWaypoint(2, 3918.4f, 2338.6f, 113.5f, 0);
+	protectorateAI->AddWaypoint(3, 3883.5f, 2373.3f, 114.0f, 0);
+	protectorateAI->AddWaypoint(4, 3876.7f, 2383.2f, 113.9f, 7000);
+	protectorateAI->AddWaypoint(5, 3854.6f, 2349.8f, 114.7f, 0);
+	protectorateAI->AddWaypoint(6, 3867.1f, 2334.6f, 115.1f, 0);
+	protectorateAI->AddWaypoint(7, 3872.9f, 2321.5f, 114.5f, 5000);
+	protectorateAI->AddWaypoint(8, 3872.9f, 2321.5f, 114.5f, 12000);
+	protectorateAI->AddWaypoint(9, 3872.9f, 2321.5f, 114.5f, 0);
+	protectorateAI->AddWaypoint(10, 3861.2f, 2349.6f, 115.0f, 5000);
+	protectorateAI->AddWaypoint(11, 3861.2f, 2349.6f, 115.0f, 6000);
+	protectorateAI->AddWaypoint(12, 3861.2f, 2349.6f, 115.0f, 1000);
+	protectorateAI->AddWaypoint(13, 3861.2f, 2349.6f, 115.0f, 0);
 
 	return protectorateAI;
-}
-
-struct demolitionist_triggerAI : public ScriptedAI
-{
-	demolitionist_triggerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
-
-	void Reset()
-	{
-		demo_found = false;
-
-		PlayerGUID = 0;
-	}
-
-	bool demo_found;
-
-	uint64 PlayerGUID;
-
-	void UpdateAI(const uint32 diff)
-	{
-		if (!UpdateVictim())
-		{
-			if (!demo_found)
-			{
-				if (Creature* demolitionist = me->FindNearestCreature(20802, 10.0f, true))
-				{
-					if (npc_protectorate_demolitionistAI* pEscortAI = CAST_AI(npc_protectorate_demolitionistAI, demolitionist->AI()))
-					{
-						CAST_AI(npc_protectorate_demolitionistAI, demolitionist->AI())->PlayerGUID;
-						pEscortAI->Start(false, false, PlayerGUID);
-
-						demo_found = true;
-						me->DisappearAndDie();
-					}
-				}
-			}
-		}
-	}
-};
-
-CreatureAI* GetAI_demolitionist_trigger(Creature* pCreature)
-{
-	return new demolitionist_triggerAI(pCreature);
-}
-
-bool QuestAccept_npc_image_of_commander_ameer(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{
-	if (quest->GetQuestId() == QUEST_DELIVERING_THE_MESSAGE)
-	{
-		pCreature->MonsterSay(QUEST_START_SAY, LANG_UNIVERSAL, 0);
-		pCreature->DisappearAndDie();
-		pPlayer->CastSpell(pPlayer, 35679, true);	
-
-		if (Creature* demotrigger = pCreature->FindNearestCreature(61027, 30.0f, true))
-		{
-			CAST_AI(demolitionist_triggerAI, demotrigger->AI())->PlayerGUID = pPlayer->GetGUID();
-		}
-	}
-
-	return true;
 }
 
 /*######
@@ -3741,7 +3596,7 @@ struct npc_salhadaarAI : public ScriptedAI
 
 	void Reset()
 	{
-		me->setFaction(35);
+		me->SetFaction(35);
 
 		Count = 0;
 		summoncopy = false;
@@ -3764,7 +3619,7 @@ struct npc_salhadaarAI : public ScriptedAI
 			if (me->HasAura(40225))
 				me->RemoveAurasDueToSpell(40225);
 
-			me->setFaction(14);
+			me->SetFaction(14);
 			me->MonsterYell(YELL_SALH_AGGRO, LANG_UNIVERSAL, 0);
 		}
 	}
@@ -4164,35 +4019,35 @@ CreatureAI* GetAI_npc_captain_saeed(Creature* pCreature)
 {
 	npc_captain_saeedAI* captain_saeedAI = new npc_captain_saeedAI(pCreature);
 
-	captain_saeedAI->AddWaypoint(0, 4264.2, 2102.7, 140.8, 3000);
-	captain_saeedAI->AddWaypoint(1, 4264.2, 2102.7, 140.8, 2000);
-	captain_saeedAI->AddWaypoint(2, 4264.2, 2102.7, 140.8, 500);
-	captain_saeedAI->AddWaypoint(3, 4188.8, 2140.9, 154.8, 0);
-	captain_saeedAI->AddWaypoint(4, 4186.5, 2089.6, 159.7, 0);
-	captain_saeedAI->AddWaypoint(5, 4171.3, 2060.7, 168.0, 0);
-	captain_saeedAI->AddWaypoint(6, 4188.0, 2032.7, 181.0, 0);
-	captain_saeedAI->AddWaypoint(7, 4176.2, 1997.5, 201.6, 0);
-	captain_saeedAI->AddWaypoint(8, 4124.0, 1975.5, 221.9, 0);
-	captain_saeedAI->AddWaypoint(9, 4089.0, 2033.5, 238.2, 0);
-	captain_saeedAI->AddWaypoint(10, 4054.4, 2063.2, 251.4, 0);
-	captain_saeedAI->AddWaypoint(11, 4002.6, 2097.1, 254.2, 0);
-	captain_saeedAI->AddWaypoint(12, 3995.4, 2091.9, 254.3, 0);      // Entrance to Dimensius
-	captain_saeedAI->AddWaypoint(13, 3995.4, 2091.9, 254.3, 10000);  // Make new formation // SetWalk
-	captain_saeedAI->AddWaypoint(14, 3978.9, 2067.8, 256.4, 0);
-	captain_saeedAI->AddWaypoint(15, 3958.5, 2037.2, 257.8, 0); 
-	captain_saeedAI->AddWaypoint(16, 3948.4, 2021.4, 256.4, 5000);   // End of Road -> wait 5s
-	captain_saeedAI->AddWaypoint(17, 3948.4, 2021.4, 256.4, 0);
-	captain_saeedAI->AddWaypoint(18, 3948.4, 2021.4, 256.4, 7000);   // wait 3s. for AttackStart
-	captain_saeedAI->AddWaypoint(19, 3948.4, 2021.4, 256.4, 3000);
-	captain_saeedAI->AddWaypoint(20, 3948.4, 2021.4, 256.4, 6000);   // Say Kill Dimensius
-	captain_saeedAI->AddWaypoint(21, 3948.4, 2021.4, 256.4, 0);	     // Disappear with all adds
+	captain_saeedAI->AddWaypoint(0, 4264.2f, 2102.7f, 140.8f, 3000);
+	captain_saeedAI->AddWaypoint(1, 4264.2f, 2102.7f, 140.8f, 2000);
+	captain_saeedAI->AddWaypoint(2, 4264.2f, 2102.7f, 140.8f, 500);
+	captain_saeedAI->AddWaypoint(3, 4188.8f, 2140.9f, 154.8f, 0);
+	captain_saeedAI->AddWaypoint(4, 4186.5f, 2089.6f, 159.7f, 0);
+	captain_saeedAI->AddWaypoint(5, 4171.3f, 2060.7f, 168.0f, 0);
+	captain_saeedAI->AddWaypoint(6, 4188.0f, 2032.7f, 181.0f, 0);
+	captain_saeedAI->AddWaypoint(7, 4176.2f, 1997.5f, 201.6f, 0);
+	captain_saeedAI->AddWaypoint(8, 4124.0f, 1975.5f, 221.9f, 0);
+	captain_saeedAI->AddWaypoint(9, 4089.0f, 2033.5f, 238.2f, 0);
+	captain_saeedAI->AddWaypoint(10, 4054.4f, 2063.2f, 251.4f, 0);
+	captain_saeedAI->AddWaypoint(11, 4002.6f, 2097.1f, 254.2f, 0);
+	captain_saeedAI->AddWaypoint(12, 3995.4f, 2091.9f, 254.3f, 0);      // Entrance to Dimensius
+	captain_saeedAI->AddWaypoint(13, 3995.4f, 2091.9f, 254.3f, 10000);  // Make new formation // SetWalk
+	captain_saeedAI->AddWaypoint(14, 3978.9f, 2067.8f, 256.4f, 0);
+	captain_saeedAI->AddWaypoint(15, 3958.5f, 2037.2f, 257.8f, 0); 
+	captain_saeedAI->AddWaypoint(16, 3948.4f, 2021.4f, 256.4f, 5000);   // End of Road -> wait 5s
+	captain_saeedAI->AddWaypoint(17, 3948.4f, 2021.4f, 256.4f, 0);
+	captain_saeedAI->AddWaypoint(18, 3948.4f, 2021.4f, 256.4f, 7000);   // wait 3s. for AttackStart
+	captain_saeedAI->AddWaypoint(19, 3948.4f, 2021.4f, 256.4f, 3000);
+	captain_saeedAI->AddWaypoint(20, 3948.4f, 2021.4f, 256.4f, 6000);   // Say Kill Dimensius
+	captain_saeedAI->AddWaypoint(21, 3948.4f, 2021.4f, 256.4f, 0);	     // Disappear with all adds
 
 	return captain_saeedAI;
 }
 
 bool GossipHello_npc_captain_saeed(Player* player, Creature* creature)
 {
-	if (creature->isQuestGiver())
+	if (creature->IsQuestGiver())
 		player->PrepareQuestMenu(creature->GetGUID());
 
 	if (creature->FindNearestCreature(61028, 10.0f, true))
@@ -4267,7 +4122,7 @@ struct npc_dimensius_devourerAI : public ScriptedAI
 	void Reset()
 	{
 		me->SetReactState(REACT_AGGRESSIVE);
-		me->setFaction(35);
+		me->SetFaction(35);
 
 		summon_spawns_timer = 20000;
 		shadow_spiral_timer = 11000;
@@ -4305,7 +4160,7 @@ struct npc_dimensius_devourerAI : public ScriptedAI
 		{
 			if (start_combat_timer <= diff && !start_combat)
 			{
-				me->setFaction(14);
+				me->SetFaction(14);
 				me->MonsterTextEmote(DIMENSIUS_LAUGH_EMOTE, 0, false);
 				me->MonsterYell(DIMENSIUS_YELL, LANG_UNIVERSAL, 0);
 				start_combat = true;
@@ -4360,6 +4215,290 @@ CreatureAI* GetAI_npc_dimensius_devourer(Creature* pCreature)
 	return new npc_dimensius_devourerAI(pCreature);
 }
 
+/*######
+## npc_commander_ameer
+######*/
+
+#define ENTRY_PRISON  184488
+#define ENTRY_PRISONER 22900
+
+#define QUEST_A_MISSION_OF_MERCY 10970
+
+#define AMEER_TEXT_1 "Stand back, $n. This may be an Ethereum trap."
+#define AMEER_EMOTE_1 "Commander Ameer uses the Ethereum prison key on the salvaged Ethereum prison"
+#define AMEER_TEXT_2 "Those fools! What have they done! What horrors \
+do they hold? And for what purpose? I will need \
+your help again, hero. Help us. Help your people."
+
+#define PRISONER_TEXT "Commander... I am not long for this world... \
+Taken to a holding pen... hundreds... thousands... \
+beings from other worlds... Imprisoned... \
+Imprisoned by Ethereum. Many of them our \
+allies. Must... Must save the others... It... It's not \
+too late..."
+
+
+struct npc_commander_ameerAI : public ScriptedAI
+{
+	npc_commander_ameerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+	bool eventInProgress;
+	int32 timer;
+	uint32 currentPhase;
+	uint64 playerTarget;
+
+	void BeginEvent(uint64 starter)
+	{
+		if (eventInProgress)
+			return;
+		eventInProgress = true;
+		timer = 3000;
+		currentPhase = 0;
+		playerTarget = starter;
+	}
+
+	void UpdateAI(const uint32 diff)
+	{
+		if (!eventInProgress)
+			return;
+		timer -= diff;
+		if (timer <= 0)
+		{
+			HandlePhaseComplete();
+			currentPhase++;
+		}
+	}
+
+	void HandlePhaseComplete()
+	{
+		Creature* prisoner = me->FindNearestCreature(ENTRY_PRISONER, 10.0);
+		GameObject* prison = me->FindNearestGameObject(ENTRY_PRISON, 10.0);
+
+		switch (currentPhase)
+		{
+		case 0: //play first emote and say stuff
+			me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+			me->MonsterSay(AMEER_TEXT_1, LANG_UNIVERSAL, playerTarget);
+			timer = 3500;
+			break;
+		case 1: //walk to the prison
+			me->SetWalk(true);
+			me->GetMotionMaster()->MovePoint(0, 4249.01f, 2168.73f, 137.67f);
+			timer = 4000;
+			break;
+		case 2: //play emote at prison
+			me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+			timer = 3000;
+			break;
+		case 3: //begin opening prison
+			me->HandleEmoteCommand(EMOTE_STATE_WORK);
+			me->MonsterTextEmote(AMEER_EMOTE_1, 0);
+			timer = 5000;
+			break;
+		case 4: //open prison and spawn prisoner
+			me->HandleEmoteCommand(EMOTE_STATE_STAND);
+			if (prison)
+			{
+				prison->SetLootState(GO_READY);
+				prison->UseDoorOrButton();
+			}
+
+			me->SummonCreature(ENTRY_PRISONER, prison->m_positionX, prison->m_positionY, prison->m_positionZ,
+				0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+			timer = 2500;
+			break;
+		case 5: //prisoner speaks
+			if (prisoner)
+			{
+				prisoner->SetFacingToObject(me);
+				prisoner->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+				prisoner->MonsterSay(PRISONER_TEXT, LANG_UNIVERSAL, 0);
+			}
+			timer = 15000;
+			break;
+		case 6: //prisoner dies
+			if (prisoner)
+				me->Kill(prisoner);
+			timer = 500;
+			break;
+		case 7: //close prison
+			if (prison)
+			{
+				prison->SetLootState(GO_READY);
+				prison->UseDoorOrButton();
+			}
+			if (prisoner)
+				prisoner->DisappearAndDie();
+			timer = 4500;
+			break;
+		case 8: //ameer talks some more
+			me->HandleEmoteCommand(EMOTE_ONESHOT_TALK);
+			me->MonsterSay(AMEER_TEXT_2, LANG_UNIVERSAL, playerTarget);
+			timer = 6000;
+			break;
+		case 9: //ameer walks back to home pos
+			me->SetWalk(true);
+			me->GetMotionMaster()->MovePoint(0, me->GetHomePosition());
+			timer = 2000;
+			break;
+		case 10: //event done
+			me->SetWalk(false);
+			me->SetFacingTo(me->GetHomePosition().GetOrientation());
+
+			eventInProgress = false;
+			currentPhase = 0;
+			timer = 0;
+			playerTarget = 0;
+			break;
+		}
+	}
+};
+
+CreatureAI* GetAI_npc_commander_ameer(Creature* pCreature)
+{
+	return new npc_commander_ameerAI(pCreature);
+}
+
+bool ChooseReward_npc_commander_ameer(Player* pPlayer, Creature* pCreature, Quest const* quest, uint32 /* item */)
+{
+	if (quest->GetQuestId() == QUEST_A_MISSION_OF_MERCY)
+	{
+		npc_commander_ameerAI* ai = CAST_AI(npc_commander_ameerAI, pCreature->AI());
+		if (ai)
+			ai->BeginEvent(pPlayer->GetGUID());
+	}
+
+	return false;
+}
+
+/*######
+## npc_reflection_of_ya_six
+######*/
+
+#define SPELL_BACKSTAB 7159
+#define SPELL_SINISTER_STRIKE 14873
+#define SPELL_SLICE_AND_DICE 6434
+
+#define YA_SIX_SPAWN_TEXT "Look at that handsome grouping of chaotic energies!"
+#define YA_SIX_WARN_ARCONUS_TEXT "Arconus is close. I can feel him. Take the northwest passage. He should be just up and around the corner. Be ready to battle!"
+#define YA_SIX_EXIT_CAVE_TEXT "This is the wrong way. Arconus is at the other end of the mine. You're not chickening out, are you, fleshling? I won't follow a coward."
+
+struct npc_reflection_of_ya_sixAI : public ScriptedAI
+{
+	npc_reflection_of_ya_sixAI(Creature* pCreature) : ScriptedAI(pCreature), doSpawnText(true),
+		doSenseArconusText(true), doExitCaveText(true) {}
+
+	bool doSpawnText;
+	bool doSenseArconusText;
+	bool doExitCaveText;
+	int32 backstabTimer;
+	int32 sinisterStrikeTimer;
+	int32 sliceAndDiceTimer;
+
+	void Reset() override
+	{
+		if (Unit* target = FindTarget())
+		{
+			me->SetInCombatWith(target);
+			AttackStart(target);
+		}
+	}
+
+	Unit* FindTarget()
+	{
+		Unit* owner = me->GetOwner();
+		if (!owner)
+			return NULL;
+
+		Unit* target = owner->getAttackerForHelper();
+		if (target && !target->IsCharmedOwnedByPlayerOrPlayer())
+			return target;
+
+		target = me->getAttackerForHelper();
+		if (target && !target->IsCharmedOwnedByPlayerOrPlayer())
+			return target;
+
+		return NULL;
+	}
+
+	void UpdateAI(const uint32 diff) override
+	{
+		Unit* owner = me->GetOwner();
+
+		if (!owner)
+			return;
+
+		if (doSpawnText)
+		{
+			doSpawnText = false;
+			me->MonsterSay(YA_SIX_SPAWN_TEXT, LANG_UNIVERSAL, 0);
+			me->SetFaction(1797);
+		}
+
+		if (doSenseArconusText && me->GetDistance(3908.9350f, 2087.8901f, 156.0805f) < 8.0f)
+		{
+			doSenseArconusText = false;
+			me->MonsterSay(YA_SIX_WARN_ARCONUS_TEXT, LANG_UNIVERSAL, 0);
+		}
+
+		if (doExitCaveText && me->GetDistance(3759.427f, 2079.8112f, 152.6318f) < 8.0f)
+		{
+			doExitCaveText = false;
+			me->MonsterSay(YA_SIX_EXIT_CAVE_TEXT, LANG_UNIVERSAL, 0);
+		}
+
+		Unit* victim = me->GetVictim();
+
+		if (!victim)
+		{
+			if (Unit* target = FindTarget())
+			{
+				me->SetInCombatWith(target);
+				AttackStart(target);
+			}
+			else if (!me->HasUnitState(UNIT_STATE_FOLLOW))
+			{
+				me->GetMotionMaster()->Clear();
+				me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+			}
+		}
+		else
+		{
+			if (backstabTimer <= 0 && !victim->HasInArc(static_cast<float>(M_PI), me))
+			{
+				DoCastVictim(SPELL_BACKSTAB);
+				backstabTimer = 10000;
+			}
+			else
+				backstabTimer -= diff;
+
+			if (sinisterStrikeTimer <= 0)
+			{
+				DoCastVictim(SPELL_SINISTER_STRIKE);
+				sinisterStrikeTimer = 8000;
+			}
+			else
+				sinisterStrikeTimer -= diff;
+
+			if (sliceAndDiceTimer <= 0)
+			{
+				DoCast(me, SPELL_SLICE_AND_DICE);
+				sliceAndDiceTimer = 60000;
+			}
+			else
+				sliceAndDiceTimer -= diff;
+
+			DoMeleeAttackIfReady();
+		}
+	}
+};	
+
+CreatureAI* GetAI_reflection_of_ya_six(Creature* pCreature)
+{
+	return new npc_reflection_of_ya_sixAI(pCreature);
+}
+
+
 void AddSC_netherstorm()
 {
     Script* newscript;
@@ -4388,7 +4527,7 @@ void AddSC_netherstorm()
     newscript->Name = "npc_professor_dabiri";
     newscript->pGossipHello =   &GossipHello_npc_professor_dabiri;
     newscript->pGossipSelect =  &GossipSelect_npc_professor_dabiri;
-    newscript->pQuestAccept = &QuestAccept_npc_professor_dabiri;
+    newscript->QuestAccept = &QuestAccept_npc_professor_dabiri;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -4399,13 +4538,13 @@ void AddSC_netherstorm()
     newscript = new Script;
     newscript->Name = "npc_bessy";
     newscript->GetAI = &GetAI_npc_bessy;
-    newscript->pQuestAccept = &QuestAccept_npc_bessy;
+    newscript->QuestAccept = &QuestAccept_npc_bessy;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_maxx_a_million_escort";
     newscript->GetAI = &GetAI_npc_maxx_a_million_escort;
-    newscript->pQuestAccept = &QuestAccept_npc_maxx_a_million_escort;
+    newscript->QuestAccept = &QuestAccept_npc_maxx_a_million_escort;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -4426,7 +4565,7 @@ void AddSC_netherstorm()
     newscript = new Script;
     newscript->Name = "npc_drijya";
     newscript->GetAI = &GetAI_npc_drijya;
-    newscript->pQuestAccept = &QuestAccept_npc_drijya;
+    newscript->QuestAccept = &QuestAccept_npc_drijya;
     newscript->RegisterSelf();
 
 	newscript = new Script;
@@ -4460,24 +4599,9 @@ void AddSC_netherstorm()
 	newscript->RegisterSelf();
 
 	newscript = new Script;
-	newscript->Name = "npc_towercurse_trigger";
-	newscript->GetAI = &GetAI_npc_towercurse_trigger;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
-	newscript->Name = "npc_towerchannel_trigger";
-	newscript->GetAI = &GetAI_npc_towerchannel_trigger;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
-	newscript->Name = "npc_towerchanneler_trigger";
-	newscript->GetAI = &GetAI_npc_towerchanneler_trigger;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
 	newscript->Name = "npc_doctor_vomisa";
 	newscript->GetAI = &GetAI_npc_doctor_vomisa;
-	newscript->pQuestAccept = &QuestAccept_npc_doctor_vomisa;
+	newscript->QuestAccept = &QuestAccept_npc_doctor_vomisa;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
@@ -4535,6 +4659,7 @@ void AddSC_netherstorm()
 	newscript = new Script;
 	newscript->Name = "npc_kaylaan";
 	newscript->GetAI = &GetAI_npc_kaylaan;
+	newscript->pChooseReward = &ChooseReward_npc_kaylaan;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
@@ -4562,22 +4687,12 @@ void AddSC_netherstorm()
 	newscript = new Script;
 	newscript->Name = "npc_captured_protectorate";
 	newscript->GetAI = &GetAI_npc_captured_protectorate;
-	newscript->pQuestAccept = &QuestAccept_npc_captured_protectorate;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
-	newscript->Name = "npc_image_of_commander_ameer";
-	newscript->pQuestAccept = &QuestAccept_npc_image_of_commander_ameer;
+	newscript->QuestAccept = &QuestAccept_npc_captured_protectorate;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
 	newscript->Name = "npc_protectorate_demolitionist";
 	newscript->GetAI = &GetAI_npc_protectorate_demolitionist;
-	newscript->RegisterSelf();
-
-	newscript = new Script;
-	newscript->Name = "demolitionist_trigger";
-	newscript->GetAI = &GetAI_demolitionist_trigger;
 	newscript->RegisterSelf();
 
 	newscript = new Script;
@@ -4601,5 +4716,16 @@ void AddSC_netherstorm()
 	newscript->Name = "npc_dimensius_devourer";
 	newscript->GetAI = &GetAI_npc_dimensius_devourer;
     newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_commander_ameer";
+	newscript->GetAI = &GetAI_npc_commander_ameer;
+	newscript->pChooseReward = &ChooseReward_npc_commander_ameer;
+	newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_reflection_of_ya_six";
+	newscript->GetAI = &GetAI_reflection_of_ya_six;
+	newscript->RegisterSelf();
 }
 

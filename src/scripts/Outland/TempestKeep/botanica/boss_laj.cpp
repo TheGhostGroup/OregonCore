@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -148,7 +148,7 @@ struct boss_lajAI : public ScriptedAI
 
     void JustSummoned(Creature* summon)
     {
-        if (summon && me->getVictim())
+        if (summon && me->GetVictim())
             summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 

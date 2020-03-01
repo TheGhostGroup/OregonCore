@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -137,9 +137,9 @@ struct boss_kruulAI : public ScriptedAI
         //Hound_Timer
         if (Hound_Timer <= diff)
         {
-            SummonHounds(me->getVictim());
-            SummonHounds(me->getVictim());
-            SummonHounds(me->getVictim());
+            SummonHounds(me->GetVictim());
+            SummonHounds(me->GetVictim());
+            SummonHounds(me->GetVictim());
 
             Hound_Timer = 45000;
         }

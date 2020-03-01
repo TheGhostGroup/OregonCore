@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 /* ScriptData
 SDName: Instance_Sunwell_Plateau
@@ -147,7 +147,7 @@ struct instance_sunwell_plateau : public ScriptedInstance
         {
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                Player* plr = itr->getSource();
+                Player* plr = itr->GetSource();
                 if (plr && !plr->HasAura(45839, 0))
                     return plr;
             }

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -40,7 +40,7 @@ EndContentData */
 
 bool GossipHello_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (!pPlayer->GetQuestRewardStatus(770))
@@ -98,7 +98,7 @@ struct npc_kyle_the_frenziedAI : public ScriptedAI
 
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
-        if (!me->getVictim() && !m_bEvent && pSpell->Id == SPELL_LUNCH)
+        if (!me->GetVictim() && !m_bEvent && pSpell->Id == SPELL_LUNCH)
         {
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 m_uiPlayerGUID = pCaster->GetGUID();

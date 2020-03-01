@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -65,7 +65,7 @@ struct boss_ayamissAI : public ScriptedAI
             return;
 
         //If he is 70% start phase 2
-        if (phase == 1 && me->GetHealth() * 100 / me->GetMaxHealth() <= 70 && !me->IsNonMeleeSpellCast(false))
+        if (phase == 1 && HealthBelowPct(70) && !me->IsNonMeleeSpellCast(false))
             phase = 2;
 
         //STINGERSPRAY_Timer (only in phase2)

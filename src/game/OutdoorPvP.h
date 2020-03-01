@@ -12,13 +12,13 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OUTDOOR_PVP_H_
 #define OUTDOOR_PVP_H_
 
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "ZoneScript.h"
 
 class GameObject;
@@ -194,9 +194,9 @@ class OutdoorPvP : public ZoneScript
             return true;
         }
 
-        void OnGameObjectCreate(GameObject* go, bool add);
+        void OnGameObjectCreate(GameObject* go, bool add) override;
         void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature*, bool /*add*/) {}
+        void OnCreatureCreate(Creature*, bool /*add*/) override {}
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);

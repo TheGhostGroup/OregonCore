@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -238,7 +238,7 @@ struct boss_chromaggusAI : public ScriptedAI
             for (ThreatContainer::StorageType::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
             {
                 Unit* pUnit;
-                if ((*i) && (*i)->getSource())
+                if ((*i) && (*i)->GetSource())
                 {
                     pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
                     if (pUnit)
@@ -283,7 +283,7 @@ struct boss_chromaggusAI : public ScriptedAI
         else Frenzy_Timer -= diff;
 
         //Enrage if not already enraged and below 20%
-        if (!Enraged && (me->GetHealth() * 100 / me->GetMaxHealth()) < 20)
+        if (!Enraged && HealthBelowPct(20))
         {
             DoCast(me, SPELL_ENRAGE);
             Enraged = true;

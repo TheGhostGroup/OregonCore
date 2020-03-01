@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef _M_DELAY_EXECUTOR_H
@@ -26,7 +26,7 @@ class DelayExecutor : protected ACE_Task_Base
 {
     public:
         DelayExecutor();
-        virtual ~DelayExecutor();
+        ~DelayExecutor() override;
 
         static DelayExecutor* instance();
 
@@ -39,7 +39,7 @@ class DelayExecutor : protected ACE_Task_Base
 
         bool activated();
 
-        virtual int svc();
+        int svc() override;
 
     private:
 

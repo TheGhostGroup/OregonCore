@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -132,7 +132,7 @@ struct boss_fankrissAI : public ScriptedAI
 
         // Teleporting Random Target to one of the three tunnels and spawn 4 hatchlings near the gamer.
         //We will only telport if fankriss has more than 3% of hp so teleported gamers can always loot.
-        if (me->GetHealth() * 100 / me->GetMaxHealth() > 3)
+        if (HealthAbovePct(3))
         {
             if (SpawnHatchlings_Timer <= diff)
             {

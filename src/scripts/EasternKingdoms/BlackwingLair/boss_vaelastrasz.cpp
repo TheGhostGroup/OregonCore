@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -46,7 +46,7 @@ struct boss_vaelAI : public ScriptedAI
     boss_vaelAI(Creature* c) : ScriptedAI(c)
     {
         c->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-        c->setFaction(35);
+        c->SetFaction(35);
         c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
@@ -129,7 +129,7 @@ struct boss_vaelAI : public ScriptedAI
                     ++SpeechNum;
                     break;
                 case 2:
-                    me->setFaction(103);
+                    me->SetFaction(103);
                     if (PlayerGUID && Unit::GetUnit((*me), PlayerGUID))
                     {
                         AttackStart(Unit::GetUnit((*me), PlayerGUID));
@@ -148,7 +148,7 @@ struct boss_vaelAI : public ScriptedAI
             return;
 
         // Yell if hp lower than 15%
-        if (me->GetHealth() * 100 / me->GetMaxHealth() < 15 && !HasYelled)
+        if (HealthBelowPct(15) && !HasYelled)
         {
             DoScriptText(SAY_HALFLIFE, me);
             HasYelled = true;
@@ -195,7 +195,7 @@ struct boss_vaelAI : public ScriptedAI
         {
             // have the victim cast the spell on himself otherwise the third effect aura will be applied
             // to Vael instead of the player
-            me->getVictim()->CastSpell(me->getVictim(), SPELL_BURNINGADRENALINE, 1);
+            me->GetVictim()->CastSpell(me->GetVictim(), SPELL_BURNINGADRENALINE, 1);
 
             BurningAdrenalineTank_Timer = 45000;
         }
@@ -213,7 +213,7 @@ struct boss_vaelAI : public ScriptedAI
         if (TailSwipe_Timer <= diff)
         {
             //Only cast if we are behind
-            /*if (!me->HasInArc(M_PI, me->getVictim()))
+            /*if (!me->HasInArc(M_PI, me->GetVictim()))
             {
             DoCastVictim( SPELL_TAILSWIPE);
             }*/

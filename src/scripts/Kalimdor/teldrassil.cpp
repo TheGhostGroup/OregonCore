@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -68,7 +68,7 @@ struct npc_mistAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_ARYNIA)
+        if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_ARYNIA)
         {
             if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
@@ -159,6 +159,6 @@ void AddSC_teldrassil()
     newscript = new Script;
     newscript->Name = "npc_mist";
     newscript->GetAI = &GetAI_npc_mist;
-    newscript->pQuestAccept = &QuestAccept_npc_mist;
+    newscript->QuestAccept = &QuestAccept_npc_mist;
     newscript->RegisterSelf();
 }

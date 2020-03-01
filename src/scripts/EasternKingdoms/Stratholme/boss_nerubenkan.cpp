@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -103,7 +103,7 @@ struct boss_nerubenkanAI : public ScriptedAI
         //RaiseUndeadScarab
         if (RaiseUndeadScarab_Timer <= diff)
         {
-            RaiseUndeadScarab(me->getVictim());
+            RaiseUndeadScarab(me->GetVictim());
             RaiseUndeadScarab_Timer = 16000;
         }
         else RaiseUndeadScarab_Timer -= diff;

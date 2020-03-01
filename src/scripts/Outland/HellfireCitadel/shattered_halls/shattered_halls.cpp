@@ -329,7 +329,7 @@ struct npc_shatteredscoutAI : public ScriptedAI
 
 	void MoveInLineOfSight(Unit* who)
 	{
-		if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
+		if (!me->GetVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
 		{
 			if (!spotted && me->IsWithinDistInMap(who, 65))
 			{
@@ -338,7 +338,7 @@ struct npc_shatteredscoutAI : public ScriptedAI
 				spotted = true;					
 			}
 
-			if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+			if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
 				return;
 
 			float attackRadius = me->GetAttackDistance(who);

@@ -12,13 +12,13 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DBCSFRM_H
 #define DBCSFRM_H
 
-const char AreaTableEntryfmt[] = "iiinixxxxxissssssssssssssssxiiiiixx";
+const char AreaTableEntryfmt[] = "iiinixxxxxissssssssssssssssxiixxxxx";
 const char AuctionHouseEntryfmt[] = "niiixxxxxxxxxxxxxxxxx";
 const char AreaTriggerEntryfmt[] = "niffffffff";
 const char BankBagSlotPricesEntryfmt[] = "ni";
@@ -32,7 +32,8 @@ const char ChatChannelsEntryfmt[] = "iixssssssssssssssssxxxxxxxxxxxxxxxxxx";
 //const char ChrClassesEntryfmt[]="nxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxix";
 const char ChrClassesEntryfmt[] = "nxixssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxix";
 const char ChrRacesEntryfmt[] = "nxixiixxixxxxissssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxi";
-const char CinematicSequencesEntryfmt[] = "nxxxxxxxxx";
+char const CinematicCameraEntryfmt[] = "nsiffff";
+const char CinematicSequencesEntryfmt[] = "nxixxxxxxx";
 const char CreatureDisplayInfofmt[] = "nxxxfxxxxxxxxx";
 const char CreatureFamilyfmt[] = "nfifiiiissssssssssssssssxx";
 const char CreatureSpellDatafmt[] = "nxxxxxxxx";
@@ -50,6 +51,7 @@ const char GtChanceToMeleeCritfmt[] = "f";
 const char GtChanceToSpellCritBasefmt[] = "f";
 const char GtChanceToSpellCritfmt[] = "f";
 const char GtOCTRegenHPfmt[] = "f";
+const char GtNPCManaCostScalerfmt[] = "f";
 //const char GtOCTRegenMPfmt[]="f";
 const char GtRegenHPPerSptfmt[] = "f";
 const char GtRegenMPPerSptfmt[] = "f";
@@ -63,7 +65,7 @@ const char ItemSetEntryfmt[] = "dssssssssssssssssxxxxxxxxxxxxxxxxxxiiiiiiiiiiiii
 const char LiquidTypefmt[]="nxii";
 const char LockEntryfmt[] = "niiiiixxxiiiiixxxiixxxxxxxxxxxxxx";
 const char MailTemplateEntryfmt[] = "nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-const char MapEntryfmt[] = "nxixssssssssssssssssxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiffiixxi";
+const char MapEntryfmt[] = "nxixssssssssssssssssxxxxxxxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixxxxxxxxxxxxxxxxxxxxssssssssssssssssxxxxxxxxxxxxxxxxxxiffiixxi";
 const char QuestSortEntryfmt[] = "nxxxxxxxxxxxxxxxxx";
 const char RandomPropertiesPointsfmt[] = "niiiiiiiiiiiiiii";
 const char SkillLinefmt[] = "nixssssssssssssssssxxxxxxxxxxxxxxxxxxi";

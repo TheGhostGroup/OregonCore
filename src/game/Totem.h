@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OREGONCORE_TOTEM_H
@@ -32,15 +32,12 @@ class Totem : public Minion
 {
     public:
         explicit Totem(SummonPropertiesEntry const* properties, Unit* owner);
-        virtual ~Totem() {};
-        void Update(uint32 time);
-        void InitStats(uint32 duration);
-        void InitSummon();
+        ~Totem() override {};
+        void Update(uint32 time) override;
+        void InitStats(uint32 duration) override;
+        void InitSummon() override;
         void UnSummon();
-        uint32 GetSpell() const
-        {
-            return m_spells[0];
-        }
+        uint32 GetSpell(uint8 slot = 0) const { return m_spells[slot]; }
         uint32 GetTotemDuration() const
         {
             return m_duration;
@@ -50,22 +47,22 @@ class Totem : public Minion
             return m_type;
         }
 
-        bool UpdateStats(Stats /*stat*/)
+        bool UpdateStats(Stats /*stat*/) override
         {
             return true;
         }
-        bool UpdateAllStats()
+        bool UpdateAllStats() override
         {
             return true;
         }
-        void UpdateResistances(uint32 /*school*/) {}
-        void UpdateArmor() {}
-        void UpdateMaxHealth() {}
-        void UpdateMaxPower(Powers /*power*/) {}
-        void UpdateAttackPowerAndDamage(bool /*ranged*/) {}
-        void UpdateDamagePhysical(WeaponAttackType /*attType*/) {}
+        void UpdateResistances(uint32 /*school*/) override {}
+        void UpdateArmor() override {}
+        void UpdateMaxHealth() override {}
+        void UpdateMaxPower(Powers /*power*/) override {}
+        void UpdateAttackPowerAndDamage(bool /*ranged*/) override {}
+        void UpdateDamagePhysical(WeaponAttackType /*attType*/) override {}
 
-        bool IsImmuneToSpellEffect(SpellEntry const* spellInfo, uint32 index, bool castOnSelf) const;
+        bool IsImmuneToSpellEffect(SpellEntry const* spellInfo, uint32 index, bool castOnSelf) const override;
 
     protected:
         TotemType m_type;

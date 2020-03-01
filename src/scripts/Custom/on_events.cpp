@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "ScriptMgr.h"
@@ -50,7 +50,7 @@ void OnPlayerKilledByCreature(Creature* /*killer*/, Player* /*killed*/)
 }
 
 //This function is called just before the players level changes
-void OnPlayerLevelChanged(Player* /*player*/, uint8 /*newLevel*/)
+void OnPlayerLevelChanged(Player* /*player*/, uint8 /*oldLevel*/, uint8 /*newLevel*/)
 {
 
 }

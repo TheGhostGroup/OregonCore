@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OREGON_BAG_H
@@ -29,12 +29,12 @@ class Bag : public Item
     public:
 
         Bag();
-        ~Bag();
+        ~Bag() override;
 
-        void AddToWorld();
-        void RemoveFromWorld();
+        void AddToWorld() override;
+        void RemoveFromWorld() override;
 
-        bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        bool Create(uint32 guidlow, uint32 itemid, Player const* owner) override;
 
         void Clear();
         void StoreItem(uint8 slot, Item* pItem, bool update);
@@ -53,13 +53,13 @@ class Bag : public Item
 
         // DB operations
         // overwrite virtual Item::SaveToDB
-        void SaveToDB();
+        void SaveToDB() override;
         // overwrite virtual Item::LoadFromDB
-        bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields);
+        bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields) override;
         // overwrite virtual Item::DeleteFromDB
-        void DeleteFromDB();
+        void DeleteFromDB() override;
 
-        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
+        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const override;
 
     protected:
 

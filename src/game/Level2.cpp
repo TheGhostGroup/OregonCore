@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -35,7 +35,7 @@
 #include "AccountMgr.h"
 #include "WaypointManager.h"
 #include "CreatureGroups.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 #include <cctype>
 #include <iostream>
 #include <fstream>
@@ -232,7 +232,7 @@ bool ChatHandler::HandleGoTicketCommand(const char* args)
     mapid = ticket->map;
 
     Player* _player = m_session->GetPlayer();
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
         _player->CleanupAfterTaxiFlight();
@@ -276,7 +276,7 @@ bool ChatHandler::HandleGoTriggerCommand(const char* args)
     }
 
     // stop flight if need
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
         _player->CleanupAfterTaxiFlight();
@@ -321,7 +321,7 @@ bool ChatHandler::HandleGoGraveyardCommand(const char* args)
     }
 
     // stop flight if need
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
         _player->CleanupAfterTaxiFlight();
@@ -422,7 +422,7 @@ bool ChatHandler::HandleGoCreatureCommand(const char* args)
     }
 
     // stop flight if need
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
         _player->CleanupAfterTaxiFlight();
@@ -479,7 +479,7 @@ bool ChatHandler::HandleGoObjectCommand(const char* args)
     }
 
     // stop flight if need
-    if (_player->isInFlight())
+    if (_player->IsInFlight())
     {
         _player->GetMotionMaster()->MovementExpired();
         _player->CleanupAfterTaxiFlight();
@@ -806,7 +806,7 @@ bool ChatHandler::HandleGameObjectCommand(const char* args)
     GameObject* pGameObj = new GameObject;
     uint32 db_lowGUID = sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-    if (!pGameObj->Create(db_lowGUID, gInfo->id, map, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+    if (!pGameObj->Create(db_lowGUID, gInfo->id, map, 0x00000001, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
         delete pGameObj;
         return false;
@@ -820,7 +820,7 @@ bool ChatHandler::HandleGameObjectCommand(const char* args)
     }
 
     // fill the gameobject data and save to the db
-    pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
+    pGameObj->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
     delete pGameObj;
 
     pGameObj = new GameObject();
@@ -908,9 +908,9 @@ bool ChatHandler::HandleModifyRepCommand(const char* args)
                 if (deltaTxt)
                 {
                     int32 delta = atoi(deltaTxt);
-                    if ((delta < 0) || (delta > Player::ReputationRank_Length[r] - 1))
+                    if ((delta < 0) || (delta > ReputationMgr::PointsInRank[r] - 1))
                     {
-                        PSendSysMessage(LANG_COMMAND_FACTION_DELTA, (Player::ReputationRank_Length[r] - 1));
+                        PSendSysMessage(LANG_COMMAND_FACTION_DELTA, (ReputationMgr::PointsInRank[r] - 1));
                         SetSentErrorMessage(true);
                         return false;
                     }
@@ -918,7 +918,7 @@ bool ChatHandler::HandleModifyRepCommand(const char* args)
                 }
                 break;
             }
-            amount += Player::ReputationRank_Length[r];
+            amount += ReputationMgr::PointsInRank[r];
         }
         if (r >= MAX_REPUTATION_RANK)
         {
@@ -944,8 +944,8 @@ bool ChatHandler::HandleModifyRepCommand(const char* args)
         return false;
     }
 
-    target->SetFactionReputation(factionEntry, amount);
-    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId, target->GetName(), target->GetReputation(factionId));
+    target->GetReputationMgr().SetReputation(factionEntry, amount);
+    PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[m_session->GetSessionDbcLocale()], factionId, target->GetName(), target->GetReputationMgr().GetReputation(factionEntry));
     return true;
 }
 
@@ -976,13 +976,13 @@ bool ChatHandler::HandleNpcAddCommand(const char* args)
     Map* map = chr->GetMap();
 
     Creature* creature = new Creature;
-    if (!creature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, id, (uint32)teamval, x, y, z, o))
+    if (!creature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, id, (uint32)teamval, x, y, z, o))
     {
         delete creature;
         return false;
     }
 
-    creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
+    creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
 
     uint32 db_guid = creature->GetDBTableGUIDLow();
 
@@ -1051,7 +1051,7 @@ bool ChatHandler::HandleDelVendorItemCommand(const char* args)
         return false;
 
     Creature* vendor = getSelectedCreature();
-    if (!vendor || !vendor->isVendor())
+    if (!vendor || !vendor->IsVendor())
     {
         SendSysMessage(LANG_COMMAND_VENDORSELECTION);
         SetSentErrorMessage(true);
@@ -1439,7 +1439,7 @@ bool ChatHandler::HandleNpcFactionIdCommand(const char* args)
         return false;
     }
 
-    pCreature->setFaction(factionId);
+    pCreature->SetFaction(factionId);
 
     // faction is set in creature_template - not inside creature
 
@@ -1831,6 +1831,24 @@ bool ChatHandler::HandleKickPlayerCommand(const char* args)
     return true;
 }
 
+//set temporary phase mask for player
+bool ChatHandler::HandleModifyPhaseCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 phasemask = (uint32)atoi((char*)args);
+
+    Unit *target = getSelectedUnit();
+    if(!target)
+        target = m_session->GetPlayer();
+
+
+    target->SetPhaseMask(phasemask,true);
+
+    return true;
+}
+
 //show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)
 {
@@ -2050,17 +2068,18 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         }
 
         const char* FactionName;
-        for (FactionStateList::const_iterator itr = target->m_factions.begin(); itr != target->m_factions.end(); ++itr)
+        FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
+        for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
         {
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(itr->second.ID);
             if (factionEntry)
                 FactionName = factionEntry->name[m_session->GetSessionDbcLocale()];
             else
                 FactionName = "#Not found#";
-            ReputationRank rank = target->GetReputationRank(factionEntry);
+            ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
             std::string rankName = GetOregonString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
-            ss << itr->second.ID << ": |cffffffff|Hfaction:" << itr->second.ID << "|h[" << FactionName << "]|h|r " << rankName << "|h|r (" << target->GetReputation(factionEntry) << ")";
+            ss << itr->second.ID << ": |cffffffff|Hfaction:" << itr->second.ID << "|h[" << FactionName << "]|h|r " << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
 
             if (itr->second.Flags & FACTION_FLAG_VISIBLE)
                 ss << GetOregonString(LANG_FACTION_VISIBLE);
@@ -2478,7 +2497,7 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
     // Check
     // Remember: "show" must also be the name of a column!
     if ((show != "delay") && (show != "action") && (show != "action_chance")
-        && (show != "move_flag") && (show != "del") && (show != "move") && (show != "wpadd")
+        && (show != "move_type") && (show != "del") && (show != "move") && (show != "wpadd")
        )
         return false;
 
@@ -2607,14 +2626,14 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
                 wpCreature->AddObjectToRemoveList();
                 // re-create
                 Creature* wpCreature2 = new Creature;
-                if (!wpCreature2->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, VISUAL_WAYPOINT, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
+                if (!wpCreature2->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, VISUAL_WAYPOINT, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
                 {
                     PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                     delete wpCreature2;
                     return false;
                 }
 
-                wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
+                wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 //TODO: Should we first use "Create" then use "LoadFromDB"?
                 if (!wpCreature2->LoadCreatureFromDB(wpCreature2->GetDBTableGUIDLow(), map))
@@ -2722,7 +2741,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             return false;
         }
 
-        QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT id, point, delay, move_flag, action, action_chance FROM waypoint_data WHERE wpguid = %u", target->GetGUIDLow());
+        QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT id, point, delay, move_type, action, action_chance FROM waypoint_data WHERE wpguid = %u", target->GetGUIDLow());
 
         if (!result)
         {
@@ -2816,7 +2835,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             float o = chr->GetOrientation();
 
             Creature* wpCreature = new Creature;
-            if (!wpCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, x, y, z, o))
+            if (!wpCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, x, y, z, o))
             {
                 PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete wpCreature;
@@ -2827,7 +2846,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             // set "wpguid" column to the visual waypoint
             WorldDatabase.PExecuteLog("UPDATE waypoint_data SET wpguid = '%u' WHERE id = '%u' and point = '%u'", wpCreature->GetGUIDLow(), pathid, point);
 
-            wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
+            wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
             if (!wpCreature->LoadCreatureFromDB(wpCreature->GetDBTableGUIDLow(), map))
             {
                 PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -2870,14 +2889,14 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
         Map* map = chr->GetMap();
 
         Creature* creature = new Creature;
-        if (!creature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, x, y, z, o))
+        if (!creature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, x, y, z, o))
         {
             PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
             delete creature;
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
         if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
         {
             PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -2922,14 +2941,14 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
         Map* map = chr->GetMap();
 
         Creature* creature = new Creature;
-        if (!creature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, x, y, z, o))
+        if (!creature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, x, y, z, o))
         {
             PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
             delete creature;
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMaskForSpawn());
         if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
         {
             PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
@@ -3070,13 +3089,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
         FactionEntry const* factionEntry = sFactionStore.LookupEntry (id);
         if (factionEntry)
         {
-            FactionState const* repState = NULL;
-            if (target)
-            {
-                FactionStateList::const_iterator repItr = target->m_factions.find (factionEntry->reputationListID);
-                if (repItr != target->m_factions.end())
-                    repState = &repItr->second;
-            }
+            FactionState const* factionState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
 
             int loc = m_session ? int(m_session->GetSessionDbcLocale()) : sWorld.GetDefaultDbcLocale();
             std::string name = factionEntry->name[loc];
@@ -3110,24 +3123,24 @@ bool ChatHandler::HandleLookupFactionCommand(const char* args)
                 else
                     ss << id << " - " << name << " " << localeNames[loc];
 
-                if (repState)                               // and then target != NULL also
+                if (factionState)                               // and then target != NULL also
                 {
-                    ReputationRank rank = target->GetReputationRank(factionEntry);
+                    ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
                     std::string rankName = GetOregonString(ReputationRankStrIndex[rank]);
 
-                    ss << " " << rankName << "|h|r (" << target->GetReputation(factionEntry) << ")";
+                    ss << " " << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
 
-                    if (repState->Flags & FACTION_FLAG_VISIBLE)
+                    if (factionState->Flags & FACTION_FLAG_VISIBLE)
                         ss << GetOregonString(LANG_FACTION_VISIBLE);
-                    if (repState->Flags & FACTION_FLAG_AT_WAR)
+                    if (factionState->Flags & FACTION_FLAG_AT_WAR)
                         ss << GetOregonString(LANG_FACTION_ATWAR);
-                    if (repState->Flags & FACTION_FLAG_PEACE_FORCED)
+                    if (factionState->Flags & FACTION_FLAG_PEACE_FORCED)
                         ss << GetOregonString(LANG_FACTION_PEACE_FORCED);
-                    if (repState->Flags & FACTION_FLAG_HIDDEN)
+                    if (factionState->Flags & FACTION_FLAG_HIDDEN)
                         ss << GetOregonString(LANG_FACTION_HIDDEN);
-                    if (repState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
+                    if (factionState->Flags & FACTION_FLAG_INVISIBLE_FORCED)
                         ss << GetOregonString(LANG_FACTION_INVISIBLE_FORCED);
-                    if (repState->Flags & FACTION_FLAG_INACTIVE)
+                    if (factionState->Flags & FACTION_FLAG_INACTIVE)
                         ss << GetOregonString(LANG_FACTION_INACTIVE);
                 }
                 else
@@ -3725,10 +3738,10 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
     }
 
     CreatureInfo const* cInfo = sObjectMgr.GetCreatureTemplate(creatureTarget->GetEntry());
-    // Creatures with family 0 crashes the server
-    if (cInfo->family == 0)
+    // Creatures with family CREATURE_FAMILY_NONE crashes the server
+    if (cInfo->family == CREATURE_FAMILY_NONE)
     {
-        PSendSysMessage("This creature cannot be tamed. (family id: 0).");
+        PSendSysMessage("This creature cannot be tamed. Family id: 0 (CREATURE_FAMILY_NONE).");
         SetSentErrorMessage(true);
         return false;
     }
@@ -3758,7 +3771,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
     creatureTarget->SetHealth(0); // just for nice GM-mode view
 
     pet->SetUInt64Value(UNIT_FIELD_CREATEDBY, player->GetGUID());
-    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->getFaction());
+    pet->SetUInt32Value(UNIT_FIELD_FACTIONTEMPLATE, player->GetFaction());
 
     if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
     {
@@ -4367,3 +4380,70 @@ bool ChatHandler::HandleRAFUnlinkCommand(const char* args)
     return true;
 }
 
+//change phasemask of creature or pet
+bool ChatHandler::HandleNpcSetPhaseCommand(const char* args)
+{
+    if (!*args)
+        return false;
+
+    uint32 phasemask = (uint32)atoi((char*)args);
+    if (phasemask == 0)
+    {
+        SendSysMessage(LANG_BAD_VALUE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    Creature* pCreature = getSelectedCreature();
+    if (!pCreature)
+    {
+        SendSysMessage(LANG_SELECT_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    pCreature->SetPhaseMask(phasemask, true);
+
+    if (!pCreature->IsPet())
+        pCreature->SaveToDB();
+
+    return true;
+}
+
+//set pahsemask for selected object
+bool ChatHandler::HandleGOPhaseCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Hgameobject:go_id|h[name]|h|r
+    char* cId = extractKeyFromLink((char*)args, "Hgameobject");
+    if (!cId)
+        return false;
+
+    uint32 lowguid = atoi(cId);
+    if (!lowguid)
+        return false;
+
+    GameObject* obj = NULL;
+    // by DB guid
+    if (GameObjectData const* go_data = sObjectMgr.GetGOData(lowguid))
+        obj = GetObjectGlobalyWithGuidOrNearWithDbGuid(lowguid, go_data->id);
+
+    if (!obj)
+    {
+        PSendSysMessage(LANG_COMMAND_OBJNOTFOUND, lowguid);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* phaseStr = strtok(NULL, " ");
+    uint32 phasemask = phaseStr ? atoi(phaseStr) : 0;
+    if (phasemask == 0)
+    {
+        SendSysMessage(LANG_BAD_VALUE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    obj->SetPhaseMask(phasemask, true);
+    obj->SaveToDB();
+    return true;
+}

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef __SQLDELAYTHREAD_H
@@ -42,7 +42,7 @@ class SqlDelayThread : public ACE_Based::Runnable
         bool Delay(SqlOperation* sql);
 
         void Stop();                                // Stop event
-        virtual void run();                                 // Main Thread loop
+        void run() override;                                 // Main Thread loop
 };
 #endif                                                      //__SQLDELAYTHREAD_H
 

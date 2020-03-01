@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -297,7 +297,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || me->getVictim())
+            if (!who || me->GetVictim())
                 return;
 
             if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor (me) && me->IsHostileTo(who))
@@ -339,7 +339,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             std::list<Creature*> unitList;
 
             AnyBugCheck u_check(me, 150);
-            Oregon::CreatureListSearcher<AnyBugCheck> searcher(unitList, u_check);
+            Oregon::CreatureListSearcher<AnyBugCheck> searcher(me, unitList, u_check);
             TypeContainerVisitor<Oregon::CreatureListSearcher<AnyBugCheck>, GridTypeMapContainer >  grid_creature_searcher(searcher);
             cell.Visit(p, grid_creature_searcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
@@ -351,7 +351,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 if (c && c->isDead())
                 {
                     c->Respawn();
-                    c->setFaction(7);
+                    c->SetFaction(7);
                     c->RemoveAllAuras();
                 }
                 if (c->IsWithinDistInMap(me, ABUSE_BUG_RANGE))
@@ -441,7 +441,7 @@ struct boss_veknilashAI : public boss_twinemperorsAI
 
     void CastSpellOnBug(Creature* pTarget)
     {
-        pTarget->setFaction(14);
+        pTarget->SetFaction(14);
         ((CreatureAI*)pTarget->AI())->AttackStart(me->getThreatManager().getHostileTarget());
         SpellEntry* spell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_MUTATE_BUG);
         for (int i = 0; i < 3; i++)
@@ -529,7 +529,7 @@ struct boss_veklorAI : public boss_twinemperorsAI
 
     void CastSpellOnBug(Creature* pTarget)
     {
-        pTarget->setFaction(14);
+        pTarget->SetFaction(14);
         SpellEntry* spell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_EXPLODEBUG);
         for (int i = 0; i < 3; i++)
         {
@@ -557,8 +557,8 @@ struct boss_veklorAI : public boss_twinemperorsAI
         //ShadowBolt_Timer
         if (ShadowBolt_Timer <= diff)
         {
-            if (me->GetDistance(me->getVictim()) > 45)
-                me->GetMotionMaster()->MoveChase(me->getVictim(), VEKLOR_DIST, 0);
+            if (me->GetDistance(me->GetVictim()) > 45)
+                me->GetMotionMaster()->MoveChase(me->GetVictim(), VEKLOR_DIST, 0);
             else
                 DoCastVictim(SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;

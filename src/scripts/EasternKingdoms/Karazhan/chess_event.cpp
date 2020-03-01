@@ -12,7 +12,7 @@
 * more details.
 *
 * You should have received a copy of the GNU General Public License along
-* with this program. If not, see <http://www.gnu.org/licenses/>.
+* with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
 /* ScriptData
@@ -201,7 +201,7 @@ const float CHESS_RIGHT_VECTOR[3] = { -27.665f, 34.6075f, 0.0f };
 const float CHESS_UP_VECTOR[3] = { -34.6375f, -27.3475f, 0.0f };
 
 const float CHESS_PIECEBAR_ALLIANCE[3] = { -11082.1709f, -1910.06103f, 221.07f };
-const float CHESS_PIECEBAR_HORDE[3] = { -11079.038f, -1842.5085, 221.07f };
+const float CHESS_PIECEBAR_HORDE[3] = { -11079.038f, -1842.5085f, 221.07f };
 
 uint32 ChessPieceEntrysHorde[6] = { NPC_PAWN_H, NPC_ROOK_H, NPC_QUEEN_H, NPC_KNIGHT_H, NPC_BISHOP_H, NPC_KING_H };
 uint32 ChessPieceEntrysAlliance[6] = { NPC_PAWN_A, NPC_ROOK_A, NPC_QUEEN_A, NPC_BISHOP_A, NPC_KNIGHT_A, NPC_KING_A };
@@ -256,9 +256,9 @@ struct Echo_of_MedivhAI : public ScriptedAI
         Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
         {
-            if (i->getSource())
+            if (i->GetSource())
             {
-                if (i->getSource()->GetTeam() == ALLIANCE)
+                if (i->GetSource()->GetTeam() == ALLIANCE)
                     PlayerControlledFaction = FACTION_ALLIANCE;
                 else
                     PlayerControlledFaction = FACTION_HORDE;
@@ -278,7 +278,7 @@ struct Echo_of_MedivhAI : public ScriptedAI
             std::list<Unit*> unitList;
             uint32 searchEntry = ChessPieceEntrysAlliance[i];
             Oregon::AllCreaturesOfEntryInRange u_check(me, searchEntry, 100);
-            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(unitList, u_check);
+            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, unitList, u_check);
             me->GetMap()->VisitAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), searcher);
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); itr++)
             {
@@ -292,7 +292,7 @@ struct Echo_of_MedivhAI : public ScriptedAI
             std::list<Unit*> unitList;
             uint32 searchEntry = ChessPieceEntrysHorde[i];
             Oregon::AllCreaturesOfEntryInRange u_check(me, searchEntry, 100);
-            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(unitList, u_check);
+            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, unitList, u_check);
             me->GetMap()->VisitAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), searcher);
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); itr++)
             {
@@ -304,7 +304,7 @@ struct Echo_of_MedivhAI : public ScriptedAI
         {
             std::list<Unit*> unitList;
             Oregon::AllCreaturesOfEntryInRange u_check(me, NPC_BLACK_SQUARE, 100);
-            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(unitList, u_check);
+            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> searcher(me, unitList, u_check);
             me->GetMap()->VisitAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), searcher);
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); itr++)
             {
@@ -316,7 +316,7 @@ struct Echo_of_MedivhAI : public ScriptedAI
         {
             std::list<Unit*> unitList;
             Oregon::AllCreaturesOfEntryInRange check(me, NPC_WHITE_SQUARE, 100);
-            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> _searcher(unitList, check);
+            Oregon::UnitListSearcher<Oregon::AllCreaturesOfEntryInRange> _searcher(me, unitList, check);
             me->GetMap()->VisitAll(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), _searcher);
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); itr++)
             {
@@ -387,7 +387,7 @@ struct Echo_of_MedivhAI : public ScriptedAI
                             if (spellid == SPELL_FURY_OF_MEDIVH_HORDE)
                             {
                                 Unit* summon = me->SummonCreature(NPC_FURY_MEDIVH_VISUAL, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                                summon->setFaction(GetPlayerControlledFaction() == FACTION_ALLIANCE ? FACTION_HORDE : FACTION_ALLIANCE);
+                                summon->SetFaction(GetPlayerControlledFaction() == FACTION_ALLIANCE ? FACTION_HORDE : FACTION_ALLIANCE);
                                 summon->CastSpell(me, SPELL_FURY_OF_MEDIVH_HORDE, true);
                             }
                             else if (spellid == SPELL_FULL_HEAL_HORDE)
@@ -568,8 +568,11 @@ struct Chess_npcAI : public Scripted_NoMovementAI
 
         if (me->GetEntry() == NPC_KING_H || me->GetEntry() == NPC_KING_A)
         {
-            if (IsMedivhControlled(me)) //if medivhs king is killed player won
-                pInstance->SetData(TYPE_CHESS, DONE);
+            if (IsMedivhControlled(me)) {
+				//if medivhs king is killed player won
+				pInstance->SetData(TYPE_CHESS, DONE);
+				pInstance->DoUseDoorOrButton(pInstance->GetData64(DATA_GO_GAME_EXIT_DOOR));
+			}
             else //else player lost
                 pInstance->SetData(TYPE_CHESS, FAIL);
 
@@ -598,7 +601,7 @@ struct Chess_npcAI : public Scripted_NoMovementAI
             if (me->HasAura(SPELL_ATTACK_TIMER, 0))
                 me->RemoveAurasDueToSpell(SPELL_ATTACK_TIMER);
 
-            if (me->getFaction() == FACTION_ALLIANCE)
+            if (me->GetFaction() == FACTION_ALLIANCE)
                 me->Relocate(CHESS_PIECEBAR_ALLIANCE[0], CHESS_PIECEBAR_ALLIANCE[1], CHESS_PIECEBAR_ALLIANCE[2]);
             else
                 me->Relocate(CHESS_PIECEBAR_HORDE[0], CHESS_PIECEBAR_HORDE[1], CHESS_PIECEBAR_HORDE[2]);
@@ -658,10 +661,10 @@ struct Chess_npcAI : public Scripted_NoMovementAI
         if (!medivhAI)
             return false;
 
-        if (medivhAI->GetPlayerControlledFaction() == FACTION_ALLIANCE && who->getFaction() == FACTION_HORDE)
+        if (medivhAI->GetPlayerControlledFaction() == FACTION_ALLIANCE && who->GetFaction() == FACTION_HORDE)
             return true;
 
-        if (medivhAI->GetPlayerControlledFaction() == FACTION_HORDE && who->getFaction() == FACTION_ALLIANCE)
+        if (medivhAI->GetPlayerControlledFaction() == FACTION_HORDE && who->GetFaction() == FACTION_ALLIANCE)
             return true;
 
         return false;
@@ -706,7 +709,7 @@ struct Chess_npcAI : public Scripted_NoMovementAI
         Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
         {
-            i->getSource()->RemoveAurasDueToSpellByCancel(SPELL_CONTROL_PIECE);
+            i->GetSource()->RemoveAurasDueToSpellByCancel(SPELL_CONTROL_PIECE);
         }
     }
 
@@ -720,7 +723,7 @@ struct Chess_npcAI : public Scripted_NoMovementAI
         Unit* target = NULL;
         uint32 npcFaction;
 
-        if (me->getFaction() == FACTION_HORDE)
+        if (me->GetFaction() == FACTION_HORDE)
             npcFaction = FACTION_ALLIANCE;
         else
             npcFaction = FACTION_HORDE;
@@ -759,10 +762,10 @@ struct Chess_npcAI : public Scripted_NoMovementAI
     Unit* FindFriendlyChessPieceForHeal(uint32 hpdiv)
     {
         Echo_of_MedivhAI* medivhAI = GetMedivhAI(pInstance, me);
-        std::list<Creature*> unitList = me->getFaction() == FACTION_ALLIANCE ? medivhAI->AllianceChessPieces : medivhAI->HordeChessPieces;
+        std::list<Creature*> unitList = me->GetFaction() == FACTION_ALLIANCE ? medivhAI->AllianceChessPieces : medivhAI->HordeChessPieces;
         for (std::list<Creature*>::iterator itr = unitList.begin(); itr != unitList.end(); itr++)
         {
-            if ((*itr)->IsAlive() && (*itr)->GetMaxHealth() - (*itr)->GetHealth() >= hpdiv && (*itr)->getFaction() == me->getFaction())
+            if ((*itr)->IsAlive() && (*itr)->GetMaxHealth() - (*itr)->GetHealth() >= hpdiv && (*itr)->GetFaction() == me->GetFaction())
                 return (*itr);
         }
         return NULL;
@@ -954,7 +957,7 @@ struct Chess_npcAI : public Scripted_NoMovementAI
         //check black fields first
         for (std::list<Unit*>::iterator itr = medivhAI->BlackFieldList.begin(); itr != medivhAI->BlackFieldList.end(); itr++)
         {
-            if ((*itr)->GetDistance(me) <= SpellRange && (*itr)->GetDistance(target) < distance && !(*itr)->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+			if ((*itr)->GetDistance(me) <= SpellRange && (*itr)->GetDistance(target) < distance && !(*itr)->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL))
             {
                 victim = (*itr);
                 distance = (*itr)->GetDistance(target);
@@ -964,7 +967,7 @@ struct Chess_npcAI : public Scripted_NoMovementAI
         //now check for closer white fields
         for (std::list<Unit*>::iterator itr = medivhAI->WhiteFieldList.begin(); itr != medivhAI->WhiteFieldList.end(); itr++)
         {
-            if ((*itr)->GetDistance(me) <= SpellRange && (*itr)->GetDistance(target) < distance && !(*itr)->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+			if ((*itr)->GetDistance(me) <= SpellRange && (*itr)->GetDistance(target) < distance && !(*itr)->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL))
             {
                 victim = (*itr);
                 distance = (*itr)->GetDistance(target);
@@ -1031,7 +1034,7 @@ struct Chess_npcAI : public Scripted_NoMovementAI
                 return;
 
             Echo_of_MedivhAI* medivhAI = GetMedivhAI(pInstance, me);
-            bool isMedivhControlled = medivhAI && medivhAI->GetPlayerControlledFaction() != me->getFaction();
+            bool isMedivhControlled = medivhAI && medivhAI->GetPlayerControlledFaction() != me->GetFaction();
 
             if (m_AITimer < diff) //5 Second timer
             {
@@ -1195,12 +1198,12 @@ struct Move_triggerAI : public ScriptedAI
         if (pInstance->GetData(TYPE_CHESS) != IN_PROGRESS)
             return;
 
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
+		if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL))
         {
             if (search_timer < diff)
             {
                 if (!HasMoveMarker())
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+					me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
 
                 search_timer = 2000;
             }
@@ -1214,7 +1217,7 @@ struct Move_triggerAI : public ScriptedAI
         if (spell->Id == SPELL_TRANSFORM_FIELD)
         {
             search_timer = 3000;
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
         }
     }
 };
@@ -1430,10 +1433,10 @@ bool GossipHello_chess_npc(Player* player, Creature* _Creature)
     if (pInstance->GetData(TYPE_CHESS) != IN_PROGRESS  && _Creature->GetEntry() != NPC_KING_H && _Creature->GetEntry() != NPC_KING_A)
         CanControl = false;
 
-    if (medivhAI->GetPlayerControlledFaction() == FACTION_ALLIANCE && _Creature->getFaction() != FACTION_ALLIANCE)
+    if (medivhAI->GetPlayerControlledFaction() == FACTION_ALLIANCE && _Creature->GetFaction() != FACTION_ALLIANCE)
         CanControl = false;
 
-    if (medivhAI->GetPlayerControlledFaction() == FACTION_HORDE && _Creature->getFaction() != FACTION_HORDE)
+    if (medivhAI->GetPlayerControlledFaction() == FACTION_HORDE && _Creature->GetFaction() != FACTION_HORDE)
         CanControl = false;
 
     if (_Creature->isPossessedByPlayer())
@@ -1455,7 +1458,7 @@ bool GossipSelect_chess_npc(Player* player, Creature* _Creature, uint32 sender, 
         if (pInstance && _Creature)
         {
             player->CastSpell(_Creature, SPELL_CONTROL_PIECE, true);
-            _Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+			_Creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
             player->SetClientControl(_Creature, false);
 
             if ((_Creature->GetEntry() == NPC_KING_A || _Creature->GetEntry() == NPC_KING_H) && pInstance->GetData(TYPE_CHESS) == NOT_STARTED)

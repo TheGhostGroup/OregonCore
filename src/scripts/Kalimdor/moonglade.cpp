@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -748,7 +748,7 @@ struct npc_remulosAI : public npc_escortAI
 
     void FindVictim(Creature* pCreature)
     {
-        if (!pCreature->getVictim())
+        if (!pCreature->GetVictim())
         {
             if (PhantasmPhase)
             {
@@ -828,7 +828,7 @@ struct npc_remulosAI : public npc_escortAI
             SetEscortPaused(true);
             if (/*Creature* pEranikus = */Unit::GetCreature(*me, EranikusGUID))
             {
-                me->SetOrientation(1.46);
+                me->SetOrientation(1.46f);
                 me->SendMovementFlagUpdate();
             }
             break;
@@ -988,7 +988,7 @@ struct npc_remulosAI : public npc_escortAI
                         for (int i = 0; i < NPC_MOONGLADE_WARDENS_COUNT; i++)
                             me->SummonCreature(NPC_MOONGLADE_WARDEN,
                                                pEranikus->GetPositionX(), pEranikus->GetPositionY(),
-                                               pEranikus->GetPositionZ(), 0.02, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                                               pEranikus->GetPositionZ(), 0.02f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                     }
                     EventTimer = 60000;
                     break;
@@ -1067,7 +1067,7 @@ struct npc_remulosAI : public npc_escortAI
         {
             if (Creature* pEranikus = Unit::GetCreature(*me, EranikusGUID))
             {
-                if (Unit* pTarget = pEranikus->getVictim())
+                if (Unit* pTarget = pEranikus->GetVictim())
                     if (pTarget->GetHealth() * 100 < pTarget->GetMaxHealth() * 90)
                         return pTarget;
                 return NULL;
@@ -1230,7 +1230,7 @@ struct npc_eranikusAI : public ScriptedAI
                         }
                         CanAttack = false;
                         me->CombatStop(true);
-                        me->setFaction(35);
+                        me->SetFaction(35);
                         me->DeleteThreatList();
                         me->RemoveAllAuras();
                         me->SetReactState(REACT_PASSIVE);
@@ -1432,7 +1432,7 @@ struct npc_eranikusAI : public ScriptedAI
 
         void FindVictim()
         {
-            if (!me->getVictim())
+            if (!me->GetVictim())
             {
                 if (Unit* pTarget = me->SelectNearestTarget(20))
                 {
@@ -1480,7 +1480,7 @@ void AddSC_moonglade()
 
     newscript = new Script;
     newscript->Name = "npc_clintar_dreamwalker";
-    newscript->pQuestAccept = &QuestAccept_npc_clintar_dreamwalker;
+    newscript->QuestAccept = &QuestAccept_npc_clintar_dreamwalker;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1491,7 +1491,7 @@ void AddSC_moonglade()
     newscript = new Script;
     newscript->Name = "npc_remulos";
     newscript->GetAI = &GetAI_npc_remulos;
-    newscript->pQuestAccept = &QuestAccept_npc_remulos;
+    newscript->QuestAccept = &QuestAccept_npc_remulos;
     newscript->RegisterSelf();
 
     newscript = new Script;

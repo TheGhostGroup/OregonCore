@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -348,7 +348,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
                     CAST_AI(mob_shadowy_constructAI, Construct->AI())->GhostGUID = GhostGUID;
                     Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
                     if (!pTarget)                             // someone's trying to solo.
-                        pTarget = me->getVictim();
+                        pTarget = me->GetVictim();
 
                     if (pTarget)
                         Construct->GetMotionMaster()->MoveChase(pTarget);
@@ -401,7 +401,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
                 {
                     Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
                     if (!pTarget)
-                        pTarget = me->getVictim();
+                        pTarget = me->GetVictim();
 
                     if (pTarget)
                         Shadow->AI()->AttackStart(pTarget);
@@ -423,7 +423,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
                 if (DoomBlossom)
                 {
                     DoomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    DoomBlossom->setFaction(me->getFaction());
+                    DoomBlossom->SetFaction(me->GetFaction());
                     DoomBlossom->AddThreat(pTarget, 1.0f);
                     CAST_AI(mob_doom_blossomAI, DoomBlossom->AI())->SetTeronGUID(me->GetGUID());
                     pTarget->CombatStart(DoomBlossom);
@@ -438,7 +438,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
         {
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if (!pTarget)
-                pTarget = me->getVictim();
+                pTarget = me->GetVictim();
 
             if (pTarget)
             {
@@ -464,7 +464,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
             if (!pTarget)
-               pTarget = me->getVictim();
+               pTarget = me->GetVictim();
 
             if (pTarget && pTarget->IsAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
             {

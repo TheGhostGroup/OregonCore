@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OREGON_SPELLAURAS_H
@@ -213,6 +213,7 @@ class Aura
         void HandleAuraReflectSpellSchool(bool apply, bool Real);
         void HandleIncreasePetOutdoorSpeed(bool apply, bool Real);
         void HandleAuraCloneCaster(bool apply, bool Real);
+        void HandlePhase(bool apply, bool Real);
 
         virtual ~Aura();
 
@@ -313,9 +314,10 @@ class Aura
         {
             m_target = target;
         }
-        void SetLoadedState(uint64 caster_guid, int32 damage, int32 maxduration, int32 duration, int32 charges)
+        void SetLoadedState(uint64 caster_guid, uint64 item_caster_guid, int32 damage, int32 maxduration, int32 duration, int32 charges)
         {
             m_caster_guid = caster_guid;
+            m_castItemGuid = item_caster_guid;
             m_modifier.m_amount = damage;
             m_maxduration = maxduration;
             m_duration = duration;
@@ -469,7 +471,7 @@ class Aura
         Unit* m_target;
         int32 m_maxduration;
         int32 m_duration;
-        uint32 m_tickNumber;
+        uint32 m_tickNumber;                                // Current tick in numerical format
         int32 m_timeCla;
         uint64 m_castItemGuid;                              // it is NOT safe to keep a pointer to the item because it may get deleted
         time_t m_applyTime;
@@ -491,7 +493,7 @@ class Aura
         bool m_in_use: 1;                                   // true while in Aura::ApplyModifier call
         bool m_isSingleTargetAura: 1;                       // true if it's a single target spell and registered at caster - can change at spell steal for example
 
-        int32 m_periodicTimer;
+        int32 m_periodicTimer;                              // Timer for periodic auras
         int32 m_amplitude;
         uint32 m_PeriodicEventId;
         DiminishingGroup m_AuraDRGroup;
@@ -511,8 +513,8 @@ class AreaAura : public Aura
 {
     public:
         AreaAura(SpellEntry const* spellproto, uint32 eff, int32* currentBasePoints, Unit* target, Unit* caster = NULL, Item* castItem = NULL);
-        ~AreaAura();
-        void Update(uint32 diff);
+        ~AreaAura() override;
+        void Update(uint32 diff) override;
         bool CheckTarget(Unit* target);
     private:
         float m_radius;
@@ -523,8 +525,8 @@ class PersistentAreaAura : public Aura
 {
     public:
         PersistentAreaAura(SpellEntry const* spellproto, uint32 eff, int32* currentBasePoints, Unit* target, Unit* caster = NULL, Item* castItem = NULL);
-        ~PersistentAreaAura();
-        void Update(uint32 diff);
+        ~PersistentAreaAura() override;
+        void Update(uint32 diff) override;
 };
 
 Aura* CreateAura(SpellEntry const* spellproto, uint32 eff, int32* currentBasePoints, Unit* target, Unit* caster = NULL, Item* castItem = NULL);

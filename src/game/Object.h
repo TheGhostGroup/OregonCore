@@ -12,13 +12,14 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
 #include "Common.h"
+#include "Position.h"
 #include "ByteBuffer.h"
 #include "UpdateFields.h"
 #include "UpdateData.h"
@@ -30,21 +31,28 @@
 #include <set>
 #include <string>
 
-#define CONTACT_DISTANCE            0.5f
-#define INTERACTION_DISTANCE        5.0f
-#define ATTACK_DISTANCE             5.0f
-#define INSPECT_DISTANCE            28.0f
-#define MAX_VISIBILITY_DISTANCE     SIZE_OF_GRIDS       // max distance for visible object show
-#define SIGHT_RANGE_UNIT            50.0f
-#define DEFAULT_VISIBILITY_DISTANCE 90.0f                   // default visible distance, 90 yards on continents
-#define DEFAULT_VISIBILITY_INSTANCE 170.0f              // default visible distance in instances, 120 yards
-#define DEFAULT_VISIBILITY_BGARENAS 533.0f              // default visible distance in BG/Arenas, 180 yards
+#define CONTACT_DISTANCE                    0.5f
+#define INTERACTION_DISTANCE                5.0f
+#define ATTACK_DISTANCE                     5.0f
+#define INSPECT_DISTANCE                    28.0f
+#define MAX_VISIBILITY_DISTANCE             SIZE_OF_GRIDS       // max distance for visible object show
+#define SIGHT_RANGE_UNIT                    50.0f
+#define VISIBILITY_DISTANCE_GIGANTIC        400.0f
+#define VISIBILITY_DISTANCE_LARGE           200.0f
+#define VISIBILITY_DISTANCE_NORMAL          100.0f
+#define VISIBILITY_DISTANCE_SMALL           50.0f
+#define VISIBILITY_DISTANCE_TINY            25.0f
+#define DEFAULT_VISIBILITY_DISTANCE         VISIBILITY_DISTANCE_NORMAL            // default visible distance, 100 yards on continents
+#define DEFAULT_VISIBILITY_INSTANCE         170.0f                  // default visible distance in instances, 170 yards
+#define DEFAULT_VISIBILITY_BGARENAS         533.0f                  // default visible distance in BG/Arenas, roughly 533 yards
 
 #define DEFAULT_WORLD_OBJECT_SIZE   0.388999998569489f      // player size, also currently used (correctly?) for any non Unit world objects
 #define DEFAULT_COMBAT_REACH        1.5f
 #define MIN_MELEE_REACH             2.0f
 #define NOMINAL_MELEE_RANGE         5.0f
 #define MELEE_RANGE                 (NOMINAL_MELEE_RANGE - MIN_MELEE_REACH * 2) //center to center for players
+
+#define GRID_SEARCH_ALL_ENTRIES     0
 
 uint32 GuidHigh2TypeId(uint32 guid_hi);
 
@@ -102,6 +110,22 @@ namespace Movement
     class MoveSpline;
 }
 
+enum PhaseMasks
+{
+    PHASEMASK_NORMAL   = 0x00000001,
+    PHASEMASK_ANYWHERE = 0xFFFFFFFF
+};
+
+enum VisibilityDistanceType
+{
+    VISDIST_DEFAULT = 0,
+    VISDIST_TINY,
+    VISDIST_SMALL,
+    VISDIST_LARGE,
+    VISDIST_GIGANTIC,
+    VISDIST_MAX
+};
+
 class WorldPacket;
 class UpdateData;
 class ByteBuffer;
@@ -150,62 +174,23 @@ class Object
             ClearUpdateMask(true);
         }
 
-        const uint64& GetGUID() const
-        {
-            return GetUInt64Value(0);
-        }
-        uint32 GetGUIDLow() const
-        {
-            return GUID_LOPART(GetUInt64Value(0));
-        }
-        uint32 GetGUIDMid() const
-        {
-            return GUID_ENPART(GetUInt64Value(0));
-        }
-        uint32 GetGUIDHigh() const
-        {
-            return GUID_HIPART(GetUInt64Value(0));
-        }
-        PackedGuid const& GetPackGUID() const
-        {
-            return m_PackGUID;
-        }
-        ObjectGuid const& GetObjectGUID() const
-        {
-            return GetGuidValue(OBJECT_FIELD_GUID);
-        }
+        uint64 GetGUID() const { return GetUInt64Value(0); }
+        uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
+        uint32 GetGUIDMid() const { return GUID_ENPART(GetUInt64Value(0)); }
+        uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
+        PackedGuid const& GetPackGUID() const { return m_PackGUID; }
+        ObjectGuid const& GetObjectGUID() const { return GetGuidValue(OBJECT_FIELD_GUID); }
 
-        std::string GetGuidStr() const
-        {
-            return GetObjectGUID().GetString();
-        }
+        std::string GetGuidStr() const { return GetObjectGUID().GetString(); }
 
-        uint32 GetEntry() const
-        {
-            return GetUInt32Value(OBJECT_FIELD_ENTRY);
-        }
-        void SetEntry(uint32 entry)
-        {
-            SetUInt32Value(OBJECT_FIELD_ENTRY, entry);
-        }
+        uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY); }
+        void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY, entry); }
 
-        float GetObjectScale() const
-        {
-            return GetFloatValue(OBJECT_FIELD_SCALE_X);
-        }
-        void SetObjectScale(float scale)
-        {
-            SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
-        }
+        float GetObjectScale() const { return GetFloatValue(OBJECT_FIELD_SCALE_X); }
+        void SetObjectScale(float scale) { SetFloatValue(OBJECT_FIELD_SCALE_X, scale); }
 
-        uint8 GetTypeId() const
-        {
-            return m_objectTypeId;
-        }
-        bool isType(uint16 mask) const
-        {
-            return (mask & m_objectType);
-        }
+        uint8 GetTypeId() const { return m_objectTypeId; }
+        bool isType(uint16 mask) const { return (mask & m_objectType); }
 
         virtual void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
         void SendUpdateToPlayer(Player* player);
@@ -441,163 +426,6 @@ class Object
         Object& operator=(Object const&);                   // prevent generation assigment operator
 };
 
-struct Position
-{
-    float m_positionX;
-    float m_positionY;
-    float m_positionZ;
-    float m_orientation;
-
-    void Relocate(float x, float y)
-    {
-        m_positionX = x;
-        m_positionY = y;
-    }
-    void Relocate(float x, float y, float z)
-    {
-        m_positionX = x;
-        m_positionY = y;
-        m_positionZ = z;
-    }
-    void Relocate(float x, float y, float z, float orientation)
-    {
-        m_positionX = x;
-        m_positionY = y;
-        m_positionZ = z;
-        m_orientation = orientation;
-    }
-    void Relocate(const Position& pos)
-    {
-        m_positionX = pos.m_positionX;
-        m_positionY = pos.m_positionY;
-        m_positionZ = pos.m_positionZ;
-        m_orientation = pos.m_orientation;
-    }
-    void Relocate(const Position* pos)
-    {
-        m_positionX = pos->m_positionX;
-        m_positionY = pos->m_positionY;
-        m_positionZ = pos->m_positionZ;
-        m_orientation = pos->m_orientation;
-    }
-    void SetOrientation(float orientation)
-    {
-        m_orientation = orientation;
-    }
-
-    float GetPositionX() const
-    {
-        return m_positionX;
-    }
-    float GetPositionY() const
-    {
-        return m_positionY;
-    }
-    float GetPositionZ() const
-    {
-        return m_positionZ;
-    }
-    float GetOrientation() const
-    {
-        return m_orientation;
-    }
-
-    void GetPosition(float& x, float& y) const
-    {
-        x = m_positionX;
-        y = m_positionY;
-    }
-    void GetPosition(float& x, float& y, float& z) const
-    {
-        x = m_positionX;
-        y = m_positionY;
-        z = m_positionZ;
-    }
-    void GetPosition(float& x, float& y, float& z, float& o) const
-    {
-        x = m_positionX;
-        y = m_positionY;
-        z = m_positionZ;
-        o = m_orientation;
-    }
-    void GetPosition(Position* pos) const
-    {
-        if (pos)
-            pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation);
-    }
-
-    bool IsPositionValid() const;
-
-    float GetExactDist2dSq(float x, float y) const
-    {
-        float dx = m_positionX - x;
-        float dy = m_positionY - y;
-        return dx * dx + dy * dy;
-    }
-    float GetExactDist2d(const float x, const float y) const
-    {
-        return sqrt(GetExactDist2dSq(x, y));
-    }
-    float GetExactDist2dSq(const Position* pos) const
-    {
-        float dx = m_positionX - pos->m_positionX;
-        float dy = m_positionY - pos->m_positionY;
-        return dx * dx + dy * dy;
-    }
-    float GetExactDist2d(const Position* pos) const
-    {
-        return sqrt(GetExactDist2dSq(pos));
-    }
-    float GetExactDistSq(float x, float y, float z) const
-    {
-        float dz = m_positionZ - z;
-        return GetExactDist2dSq(x, y) + dz * dz;
-    }
-    float GetExactDist(float x, float y, float z) const
-    {
-        return sqrt(GetExactDistSq(x, y, z));
-    }
-    float GetExactDistSq(const Position* pos) const
-    {
-        float dx = m_positionX - pos->m_positionX;
-        float dy = m_positionY - pos->m_positionY;
-        float dz = m_positionZ - pos->m_positionZ;
-        return dx * dx + dy * dy + dz * dz;
-    }
-    float GetExactDist(const Position* pos) const
-    {
-        return sqrt(GetExactDistSq(pos));
-    }
-
-    float GetAngle(const Position* pos) const;
-    float GetAngle(float x, float y) const;
-    float GetRelativeAngle(const Position* pos) const
-    {
-        return GetAngle(pos) - m_orientation;
-    }
-
-    bool IsInDist2d(float x, float y, float dist) const
-    {
-        return GetExactDist2dSq(x, y) < dist * dist;
-    }
-    bool IsInDist2d(const Position* pos, float dist) const
-    {
-        return GetExactDist2dSq(pos) < dist * dist;
-    }
-    bool IsInDist(float x, float y, float z, float dist) const
-    {
-        return GetExactDistSq(x, y, z) < dist * dist;
-    }
-    bool IsInDist(const Position* pos, float dist) const
-    {
-        return GetExactDistSq(pos) < dist * dist;
-    }
-    void GetSinCos(float x, float y, float &vsin, float &vcos) const;
-    bool IsWithinBox(const Position& center, float xradius, float yradius, float zradius) const;
-    bool HasInArc(float arcangle, const Position* pos) const;
-    bool HasInLine(const Unit* target, float distance, float width) const;
-};
-
 struct MovementInfo
 {
     uint32  moveFlags;                                      // see enum MovementFlags
@@ -620,10 +448,7 @@ struct MovementInfo
         t_time(0), s_pitch(0.0f), fallTime(0), j_velocity(0.0f), j_sinAngle(0.0f),
         j_cosAngle(0.0f), j_xyspeed(0.0f), u_unk1(0.0f)
     {
-        t_pos.m_positionX   = .0f;
-        t_pos.m_positionY   = .0f;
-        t_pos.m_positionZ   = .0f;
-        t_pos.m_orientation = .0f;
+        t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
     }
 
     // Read/Write methods
@@ -663,7 +488,7 @@ struct MovementInfo
         t_pos.m_positionX = x;
         t_pos.m_positionY = y;
         t_pos.m_positionZ = z;
-        t_pos.m_orientation = o;
+        t_pos.SetOrientation(o);
         t_time = time;
     }
     void ClearTransportData()
@@ -672,7 +497,7 @@ struct MovementInfo
         t_pos.m_positionX = 0.0f;
         t_pos.m_positionY = 0.0f;
         t_pos.m_positionZ = 0.0f;
-        t_pos.m_orientation = 0.0f;
+        t_pos.SetOrientation(0.0f);
         t_time = 0;
     }
     uint64 const& GetTransportGuid() const
@@ -696,7 +521,7 @@ struct MovementInfo
         pos.m_positionX = x;
         pos.m_positionY = y;
         pos.m_positionZ = z;
-        pos.m_orientation = o;
+        pos.SetOrientation(o);
     }
     void UpdateTime(uint32 _time)
     {
@@ -785,11 +610,12 @@ class FlaggedValuesArray32
 class WorldObject : public Object, public WorldLocation
 {
     public:
-        virtual ~WorldObject();
+        ~WorldObject() override;
 
         virtual void Update (uint32 /*time_diff*/) { }
 
-        void _Create(uint32 guidlow, HighGuid guidhigh);
+        void _Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask);
+        virtual void RemoveFromWorld() override;
 
         void GetNearPoint2D(float& x, float& y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float& x, float& y, float& z, float searcher_size, float distance2d, float absAngle) const;
@@ -799,23 +625,11 @@ class WorldObject : public Object, public WorldLocation
             GetNearPoint(NULL, x, y, z, size, distance2d, GetOrientation() + angle);
         }
         void MovePosition(Position& pos, float dist, float angle);
-        void GetNearPosition(Position& pos, float dist, float angle)
-        {
-            GetPosition(&pos);
-            MovePosition(pos, dist, angle);
-        }
+        Position GetNearPosition(float dist, float angle);
         void MovePositionToFirstCollision(Position& pos, float dist, float angle);
-        void GetFirstCollisionPosition(Position& pos, float dist, float angle)
-        {
-            GetPosition(&pos);
-            MovePositionToFirstCollision(pos, dist, angle);
-        }
+        Position GetFirstCollisionPosition(float dist, float angle);
         float GetPositionZTarget(Position& pos, float destx, float desty);
-        void GetRandomNearPosition(Position& pos, float radius)
-        {
-            GetPosition(&pos);
-            MovePosition(pos, radius * rand_norm(), rand_norm() * 2 * M_PI);
-        }
+        Position GetRandomNearPosition(float radius);
 
         void GetContactPoint(const WorldObject* obj, float& x, float& y, float& z, float distance2d = CONTACT_DISTANCE) const
         {
@@ -851,6 +665,12 @@ class WorldObject : public Object, public WorldLocation
         {
             return m_InstanceId;
         }
+
+        virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
+        uint32 GetPhaseMask() const { return m_phaseMask; }
+        bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask) != 0; }
+        bool InSamePhase(WorldObject const* obj) const { return obj && InSamePhase(obj->GetPhaseMask()); }
+        static bool InSamePhase(WorldObject const* a, WorldObject const* b) { return a && a->InSamePhase(b); }
 
         uint32 GetZoneId() const;
         uint32 GetAreaId() const;
@@ -901,7 +721,7 @@ class WorldObject : public Object, public WorldLocation
         bool IsInMap(const WorldObject* obj) const
         {
             if (obj)
-                return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap());
+                return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap()) && InSamePhase(obj);
             else
                 return false;
         }
@@ -933,6 +753,8 @@ class WorldObject : public Object, public WorldLocation
         }
         bool IsWithinLOS(float x, float y, float z) const;
         bool IsWithinLOSInMap(const WorldObject* obj) const;
+        Position GetHitSpherePointFor(Position const& dest) const;
+        void GetHitSpherePointFor(Position const& dest, float& x, float& y, float& z) const;
         bool GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D = true) const;
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
@@ -968,7 +790,7 @@ class WorldObject : public Object, public WorldLocation
         virtual bool isValid() const;
 
         virtual bool IsNeverVisible() const { return !IsInWorld(); }
-        virtual bool IsAlwaysVisibleFor(WorldObject const* seer) const { return false; }
+        virtual bool IsAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
         virtual bool IsInvisibleDueToDespawn() const { return false; }
         //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
         virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
@@ -993,10 +815,7 @@ class WorldObject : public Object, public WorldLocation
         virtual void SetMap(Map* map);
         virtual void ResetMap();
         Map* GetMap() const { ASSERT(m_currMap); return m_currMap; }
-        Map* FindMap() const
-        {
-            return m_currMap;
-        }
+        Map* FindMap() const { return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
 
         //this function should be removed in nearest time...
@@ -1023,26 +842,22 @@ class WorldObject : public Object, public WorldLocation
         GameObject* FindNearestGameObject(uint32 entry, float range);
         GameObject* FindNearestGameObjectOfType(GameobjectTypes type, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const;
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureList, uint32 entry, float maxSearchRange) const;
+        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry = GRID_SEARCH_ALL_ENTRIES, float maxSearchRange = 250.0f) const;
+        void GetCreatureListWithEntryInGrid(std::list<Creature*>& creatureList, uint32 entry = GRID_SEARCH_ALL_ENTRIES, float maxSearchRange = 250.0f) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
-        void BuildUpdate(UpdateDataMapType&);
+        virtual void UpdateObjectVisibilityOnCreate()
+        {
+            UpdateObjectVisibility(true);
+        }
+
+        void BuildUpdate(UpdateDataMapType&) override;
 
         //relocation and visibility system functions
-        void AddToNotify(uint16 f)
-        {
-            m_notifyflags |= f;
-        }
-        bool isNeedNotify(uint16 f) const
-        {
-            return m_notifyflags & f;
-        }
-        uint16 GetNotifyFlags() const
-        {
-            return m_notifyflags;
-        }
+        void AddToNotify(uint16 f) { m_notifyflags |= f; }
+        bool isNeedNotify(uint16 f) const { return (m_notifyflags & f) != 0; }
+        uint16 GetNotifyFlags() const { return m_notifyflags; }
         bool NotifyExecuted(uint16 f) const
         {
             return m_executed_notifies & f;
@@ -1057,11 +872,10 @@ class WorldObject : public Object, public WorldLocation
             m_executed_notifies = 0;
         }
 
-        bool isActiveObject() const
-        {
-            return m_isActive;
-        }
+        bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
+        bool IsVisibilityOverridden() const { return m_visibilityDistanceOverride != 0; }
+        void SetVisibilityDistanceOverride(VisibilityDistanceType type);
         void SetWorldObject(bool apply);
         bool IsPermanentWorldObject() const { return m_isWorldObject; }
         bool IsWorldObject() const;
@@ -1081,6 +895,7 @@ class WorldObject : public Object, public WorldLocation
         bool m_isActive;
         const bool m_isWorldObject;
         ZoneScript* m_zoneScript;
+        float m_visibilityDistanceOverride;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!
@@ -1099,6 +914,7 @@ class WorldObject : public Object, public WorldLocation
 
         //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
+        uint32 m_phaseMask;                                 // in area phase state
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;

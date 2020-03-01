@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -158,9 +158,9 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
                 return;
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
-                if (Player* pPlayer = i->getSource())
+                if (Player* pPlayer = i->GetSource())
                 {
-                    if (pPlayer->IsAlive() && /*i->getSource()->GetPositionZ() <= -21.434931f*/pPlayer->IsInWater())
+                    if (pPlayer->IsAlive() && /*i->GetSource()->GetPositionZ() <= -21.434931f*/pPlayer->IsInWater())
                     {
                         if (Water == WATERSTATE_SCALDING)
                         {

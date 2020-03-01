@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -561,17 +561,17 @@ struct boss_essence_of_angerAI : public ScriptedAI
 
         if (!CheckedAggro)
         {
-            AggroTargetGUID = me->getVictim()->GetGUID();
+            AggroTargetGUID = me->GetVictim()->GetGUID();
             CheckedAggro = true;
         }
 
         if (CheckTankTimer <= diff)
         {
-            if (me->getVictim()->GetGUID() != AggroTargetGUID)
+            if (me->GetVictim()->GetGUID() != AggroTargetGUID)
             {
                 DoScriptText(ANGER_SAY_BEFORE, me);
                 DoCast(me, SPELL_SELF_SEETHE, true);
-                AggroTargetGUID = me->getVictim()->GetGUID();
+                AggroTargetGUID = me->GetVictim()->GetGUID();
             }
             CheckTankTimer = 2000;
         }

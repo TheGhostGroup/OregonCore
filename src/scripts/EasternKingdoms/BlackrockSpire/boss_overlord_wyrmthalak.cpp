@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -102,7 +102,7 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
         else Knockaway_Timer -= diff;
 
         //Summon two Beserks
-        if (!Summoned && me->GetHealth() * 100 / me->GetMaxHealth() < 51)
+        if (!Summoned && HealthBelowPct(50))
         {
             Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
 

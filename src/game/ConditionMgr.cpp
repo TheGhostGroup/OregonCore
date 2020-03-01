@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Player.h"
@@ -24,6 +24,7 @@
 #include "ConditionMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "ReputationMgr.h"
 
 INSTANTIATE_SINGLETON_1(ConditionMgr);
 
@@ -146,7 +147,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
             if (Player* player = object->ToPlayer())
             {
                 if (FactionEntry const* faction = sFactionStore.LookupEntry(ConditionValue1))
-                    condMeets = (ConditionValue2 & (1 << player->GetReputationRank(faction)));
+                    condMeets = (ConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction))) != 0;
             }
             break;
         }
@@ -335,15 +336,13 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         }
         case CONDITION_REACTION_TO:
         {
-            /* @todo Implement this feature
             if (WorldObject* toObject = sourceInfo.mConditionTargets[ConditionValue1])
             {
                 Unit* toUnit = toObject->ToUnit();
                 Unit* unit = object->ToUnit();
                 if (toUnit && unit)
                     condMeets = (1 << unit->GetReactionTo(toUnit)) & ConditionValue2;
-            }*/
-            condMeets = false;
+            }
             break;
         }
         case CONDITION_DISTANCE_TO:
@@ -617,7 +616,6 @@ void ConditionMgr::LoadConditions(bool isReload)
 
     if (!result)
     {
-        sLog.outString();
         sLog.outErrorDb(">> Loaded `conditions`, table is empty!");
         return;
     }
@@ -816,7 +814,6 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
     while (result->NextRow());
 
-    sLog.outString();
     sLog.outString(">> Loaded %u conditions", count);
 }
 
@@ -862,9 +859,9 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
     {
         for (GossipMenuItemsMap::iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
         {
-            if ((*itr).second.menu_id == cond->SourceGroup && (*itr).second.id == cond->SourceEntry)
+            if ((*itr).second.MenuId == cond->SourceGroup && (*itr).second.OptionIndex == cond->SourceEntry)
             {
-                (*itr).second.conditions.push_back(cond);
+                (*itr).second.Conditions.push_back(cond);
                 return true;
             }
         }

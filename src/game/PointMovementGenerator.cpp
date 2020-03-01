@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "PointMovementGenerator.h"
@@ -132,10 +132,14 @@ void EffectMovementGenerator::Finalize(Unit& unit)
     // Need restore previous movement since we have no proper states system
     if (unit.IsAlive() && !unit.HasUnitState(UNIT_STATE_CONFUSED | UNIT_STATE_FLEEING | UNIT_STATE_DISTRACTED))
     {
-        if (Unit* victim = unit.getVictim())
+        if (Unit* victim = unit.GetVictim())
             unit.GetMotionMaster()->MoveChase(victim);
         else
             unit.GetMotionMaster()->Initialize();
+    }
+    else if (!unit.IsAlive())
+    {
+        unit.GetMotionMaster()->MoveIdle();
     }
 
     if (unit.ToCreature()->AI())

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -75,7 +75,7 @@ struct mob_jadespine_basiliskAI : public ScriptedAI
 
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
-            if (!Target || Target == me->getVictim())
+            if (!Target || Target == me->GetVictim())
                 Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
 
             if (Target)

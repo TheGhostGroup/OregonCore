@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -44,7 +44,7 @@
 #include "SkillExtraItems.h"
 #include "SystemConfig.h"
 #include "Config/Config.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "ItemEnchantmentMgr.h"
 #include "BattlegroundMgr.h"
 #include "InstanceSaveMgr.h"
@@ -516,8 +516,8 @@ bool ChatHandler::HandleReloadAllQuestCommand(const char* /*args*/)
     HandleReloadQuestTemplateCommand("a");
 
     sLog.outString("Re-Loading Quests Relations...");
-    sObjectMgr.LoadQuestRelations();
-    SendGlobalGMSysMessage("DB tables *_questrelation and *_involvedrelation reloaded.");
+    sObjectMgr.LoadQuestStartersAndEnders();
+    SendGlobalGMSysMessage("DB tables *_queststarter and *_questender reloaded.");
     return true;
 }
 
@@ -625,11 +625,11 @@ bool ChatHandler::HandleReloadCommandCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadCreatureQuestRelationsCommand(const char*)
+bool ChatHandler::HandleReloadCreatureQuestStarterCommand(const char*)
 {
-    sLog.outString("Loading Quests Relations... (creature_questrelation)");
-    sObjectMgr.LoadCreatureQuestRelations();
-    SendGlobalGMSysMessage("DB table creature_questrelation (creature quest givers) reloaded.");
+    sLog.outString("Loading Quests Relations... (creature_queststarter)");
+    sObjectMgr.LoadCreatureQuestStarters();
+    SendGlobalGMSysMessage("DB table creature_queststarter reloaded.");
     return true;
 }
 
@@ -659,27 +659,27 @@ bool ChatHandler::HandleReloadGossipMenuOptionCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadCreatureQuestInvRelationsCommand(const char*)
+bool ChatHandler::HandleReloadCreatureQuestEnderCommand(const char*)
 {
-    sLog.outString("Loading Quests Relations... (creature_involvedrelation)");
-    sObjectMgr.LoadCreatureInvolvedRelations();
-    SendGlobalGMSysMessage("DB table creature_involvedrelation (creature quest takers) reloaded.");
+    sLog.outString("Loading Quests Relations... (creature_questender)");
+    sObjectMgr.LoadCreatureQuestEnders();
+    SendGlobalGMSysMessage("DB table creature_questender reloaded.");
     return true;
 }
 
-bool ChatHandler::HandleReloadGOQuestRelationsCommand(const char*)
+bool ChatHandler::HandleReloadGOQuestStarterCommand(const char*)
 {
-    sLog.outString("Loading Quests Relations... (gameobject_questrelation)");
-    sObjectMgr.LoadGameobjectQuestRelations();
-    SendGlobalGMSysMessage("DB table gameobject_questrelation (gameobject quest givers) reloaded.");
+    sLog.outString("Loading Quests Relations... (gameobject_queststarter)");
+    sObjectMgr.LoadGameobjectQuestStarters();
+    SendGlobalGMSysMessage("DB table gameobject_queststarter reloaded.");
     return true;
 }
 
-bool ChatHandler::HandleReloadGOQuestInvRelationsCommand(const char*)
+bool ChatHandler::HandleReloadGOQuestEnderCommand(const char*)
 {
-    sLog.outString("Loading Quests Relations... (gameobject_involvedrelation)");
-    sObjectMgr.LoadGameobjectInvolvedRelations();
-    SendGlobalGMSysMessage("DB table gameobject_involvedrelation (gameobject quest takers) reloaded.");
+    sLog.outString("Loading Quests Relations... (gameobject_questender)");
+    sObjectMgr.LoadGameobjectQuestEnders();
+    SendGlobalGMSysMessage("DB table gameobject_questender reloaded.");
     return true;
 }
 
@@ -835,6 +835,14 @@ bool ChatHandler::HandleReloadReservedNameCommand(const char*)
     sLog.outString("Loading ReservedNames... (reserved_name)");
     sObjectMgr.LoadReservedPlayersNames();
     SendGlobalGMSysMessage("DB table reserved_name (player reserved names) reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadReputationSpilloverTemplateCommand(const char*)
+{
+    sLog.outString("Re-Loading `reputation_spillover_template` Table!");
+    sObjectMgr.LoadReputationSpilloverTemplate();
+    SendGlobalSysMessage("DB table `reputation_spillover_template` reloaded.");
     return true;
 }
 
@@ -1117,7 +1125,7 @@ bool ChatHandler::HandleReloadGameGraveyardZoneCommand(const char* /*arg*/)
 
     sObjectMgr.LoadGraveyardZones();
 
-    SendGlobalGMSysMessage("DB table game_graveyard_zone reloaded.");
+    SendGlobalGMSysMessage("DB table `graveyard_zone` reloaded.");
 
     return true;
 }
@@ -2256,62 +2264,120 @@ bool ChatHandler::HandleLearnAllGMCommand(const char* /*args*/)
 
 bool ChatHandler::HandleLearnAllMyClassCommand(const char* /*args*/)
 {
-    HandleLearnAllMySpellsCommand("");
     HandleLearnAllMyTalentsCommand("");
+    HandleLearnAllMySpellsCommand("");
     return true;
 }
 
 bool ChatHandler::HandleLearnAllMySpellsCommand(const char* /*args*/)
 {
-    ChrClassesEntry const* clsEntry = sChrClassesStore.LookupEntry(m_session->GetPlayer()->getClass());
-    if (!clsEntry)
-        return true;
-    uint32 family = clsEntry->spellfamily;
+    Player* player = m_session->GetPlayer();
+    uint8 level = player->getLevel();
+    uint32 teamID = player->GetTeamId();
+    uint32 trainerID;
 
-    for (uint32 i = 0; i < sSpellStore.GetNumRows(); ++i)
+    switch (player->getClass())
     {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(i);
+    case CLASS_WARRIOR:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 17504;
+        else
+            trainerID = 985;
+        break;
+    case CLASS_ROGUE:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 13283;
+        else
+            trainerID = 3401;
+        break;
+    case CLASS_SHAMAN:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 20407;
+        else
+            trainerID = 13417;
+        break;
+    case CLASS_PRIEST:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 11406;
+        else
+            trainerID = 16658;
+        break;
+    case CLASS_MAGE:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 7312;
+        else
+            trainerID = 16653;
+        break;
+    case CLASS_WARLOCK:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 5172;
+        else
+            trainerID = 16648;
+        break;
+    case CLASS_HUNTER:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 5516;
+        else
+            trainerID = 3039;
+        break;
+    case CLASS_DRUID:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 5504;
+        else
+            trainerID = 16655;
+        break;
+    case CLASS_PALADIN:
+        if (teamID == TEAM_ALLIANCE)
+            trainerID = 928;
+        else
+            trainerID = 16681;
+        break;
+    default:
+        sLog.outDebug("HandleLearnAllMySpellsCommand Failed. Invalid Class %u.", player->getClass());
+        return false;
+    }
+
+    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT spell FROM npc_trainer WHERE reqlevel BETWEEN 1 AND %i AND entry = %i", level, trainerID);
+
+    if (!result)
+    {
+        sLog.outErrorDb("0 spells found for HandleLearnAllMySpellsCommand function.");
+        return false;
+    }
+
+    do
+    {
+        Field* fields = result->Fetch();
+
+        uint32 spellID = fields[0].GetUInt32();
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellID);
+
         if (!spellInfo)
             continue;
 
         // skip wrong class/race skills
-        if (!m_session->GetPlayer()->IsSpellFitByClassAndRace(spellInfo->Id))
+        if (!player->IsSpellFitByClassAndRace(spellInfo->Id))
             continue;
 
-        // skip other spell families
-        if (spellInfo->SpellFamilyName != family)
+        // Skip known spells
+        if (player->HasSpell(spellInfo->Id))
             continue;
 
-        //@todo skip triggered spells
-
-        // skip spells with first rank learned as talent (and all talents then also)
-        uint32 first_rank = sSpellMgr.GetFirstSpellInChain(spellInfo->Id);
-        if (GetTalentSpellCost(first_rank) > 0)
+        // Skip spells with first rank learned as talent (and all talents then also)
+        if (GetTalentSpellCost(sSpellMgr.GetFirstSpellInChain(spellInfo->Id)) > 0)
             continue;
 
-        // skip broken spells
-        if (!SpellMgr::IsSpellValid(spellInfo, m_session->GetPlayer(), false))
+        // Skip broken spells
+        if (!SpellMgr::IsSpellValid(spellInfo, player, false))
             continue;
 
-        m_session->GetPlayer()->LearnSpell(i);
+        player->LearnSpell(spellInfo->Id);
     }
+    while (result->NextRow());
 
     SendSysMessage(LANG_COMMAND_LEARN_CLASS_SPELLS);
     return true;
-}
-
-static void learnAllHighRanks(Player* player, uint32 spellid)
-{
-    SpellChainNode const* node;
-    do
-    {
-        node = sSpellMgr.GetSpellChainNode(spellid);
-        player->LearnSpell(spellid);
-        if (!node)
-            break;
-        spellid = node->next;
-    }
-    while (node->next);
 }
 
 bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
@@ -2333,30 +2399,29 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
             continue;
 
         // search highest talent rank
-        uint32 spellid = 0;
+        uint32 spellId = 0;
         int rank = 4;
         for (; rank >= 0; --rank)
         {
             if (talentInfo->RankID[rank] != 0)
             {
-                spellid = talentInfo->RankID[rank];
+                spellId = talentInfo->RankID[rank];
                 break;
             }
         }
 
-        if (!spellid)                                        // ??? none spells in talent
+        if (!spellId)                                        // ??? none spells in talent
             continue;
 
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellid);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
         if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo, m_session->GetPlayer(), false))
             continue;
 
         // learn highest rank of talent
-        player->LearnSpell(spellid);
-
-        // and learn all non-talent spell ranks (recursive by tree)
-        learnAllHighRanks(player, spellid);
+        player->LearnSpellHighestRank(spellId);
     }
+
+    player->SetFreeTalentPoints(0);
 
     SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
     return true;
@@ -4333,7 +4398,7 @@ bool ChatHandler::HandleNpcInfoCommand(const char* /*args*/)
         return false;
     }
 
-    uint32 faction = target->getFaction();
+    uint32 faction = target->GetFaction();
     uint32 npcflags = target->GetUInt32Value(UNIT_NPC_FLAGS);
     uint32 displayid = target->GetDisplayId();
     uint32 nativeid = target->GetNativeDisplayId();
@@ -4350,7 +4415,7 @@ bool ChatHandler::HandleNpcInfoCommand(const char* /*args*/)
     PSendSysMessage(LANG_NPCINFO_LEVEL, target->getLevel());
     PSendSysMessage(LANG_NPCINFO_HEALTH, target->GetCreateHealth(), target->GetMaxHealth(), target->GetHealth());
     PSendSysMessage(LANG_NPCINFO_INHABIT_TYPE, cInfo->InhabitType);
-    PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS), target->GetUInt32Value(UNIT_DYNAMIC_FLAGS), target->getFaction());
+    PSendSysMessage(LANG_NPCINFO_FLAGS, target->GetUInt32Value(UNIT_FIELD_FLAGS), target->GetUInt32Value(UNIT_DYNAMIC_FLAGS), target->GetFaction());
     PSendSysMessage(LANG_COMMAND_RAWPAWNTIMES, defRespawnDelayStr.c_str(), curRespawnDelayStr.c_str());
     PSendSysMessage(LANG_NPCINFO_LOOT,  cInfo->lootid, cInfo->pickpocketLootId, cInfo->SkinLootId);
     PSendSysMessage(LANG_NPCINFO_DUNGEON_ID, target->GetInstanceId());
@@ -4429,7 +4494,7 @@ bool ChatHandler::HandleHoverCommand(const char* args)
 
 bool ChatHandler::HandleGodModeCheatCommand(const char *args)
 {
-    if (!m_session && !m_session->GetPlayer())
+    if (!m_session || !m_session->GetPlayer())
         return false;
 
     std::string argstr = (char*)args;
@@ -4455,7 +4520,7 @@ bool ChatHandler::HandleGodModeCheatCommand(const char *args)
 
 bool ChatHandler::HandleCasttimeCheatCommand(const char *args)
 {
-    if (!m_session && !m_session->GetPlayer())
+    if (!m_session || !m_session->GetPlayer())
         return false;
 
     std::string argstr = (char*)args;
@@ -4481,7 +4546,7 @@ bool ChatHandler::HandleCasttimeCheatCommand(const char *args)
 
 bool ChatHandler::HandleCoolDownCheatCommand(const char *args)
 {
-    if (!m_session && !m_session->GetPlayer())
+    if (!m_session || !m_session->GetPlayer())
         return false;
 
     std::string argstr = (char*)args;
@@ -4507,7 +4572,7 @@ bool ChatHandler::HandleCoolDownCheatCommand(const char *args)
 
 bool ChatHandler::HandlePowerCheatCommand(const char *args)
 {
-    if (!m_session && !m_session->GetPlayer())
+    if (!m_session || !m_session->GetPlayer())
         return false;
 
     std::string argstr = (char*)args;
@@ -5236,8 +5301,6 @@ bool ChatHandler::HandleResetLevelCommand(const char* args)
     if (pet)
         pet->InitStatsForLevel(startLevel);
 
-    sScriptMgr.OnPlayerLevelChanged(player, startLevel);
-
     return true;
 }
 
@@ -5691,7 +5754,7 @@ bool ChatHandler::HandleCompleteQuest(const char* args)
     // Add quest items for quests that require items
     for (uint8 x = 0; x < QUEST_OBJECTIVES_COUNT; ++x)
     {
-        uint32 id = pQuest->ReqItemId[x];
+        uint32 id = pQuest->RequiredItemId[x];
         uint32 count = pQuest->ReqItemCount[x];
         if (!id || !count)
             continue;
@@ -5735,11 +5798,11 @@ bool ChatHandler::HandleCompleteQuest(const char* args)
     if (uint32 repFaction = pQuest->GetRepObjectiveFaction())
     {
         uint32 repValue = pQuest->GetRepObjectiveValue();
-        uint32 curRep = player->GetReputation(repFaction);
+        uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
         if (curRep < repValue)
         {
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction);
-            player->SetFactionReputation(factionEntry, repValue);
+            player->GetReputationMgr().SetReputation(factionEntry, repValue);
         }
     }
 
@@ -6251,7 +6314,7 @@ bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
     cell.SetNoCreate();
 
     Oregon::RespawnDo u_do;
-    Oregon::WorldObjectWorker<Oregon::RespawnDo> worker(u_do);
+    Oregon::WorldObjectWorker<Oregon::RespawnDo> worker(pl, u_do);
 
     TypeContainerVisitor<Oregon::WorldObjectWorker<Oregon::RespawnDo>, GridTypeMapContainer > obj_worker(worker);
     cell.Visit(p, obj_worker, *pl->GetMap(), *pl, pl->GetGridActivationRange());
@@ -6798,7 +6861,7 @@ bool ChatHandler::HandleCastTargetCommand(const char* args)
         return false;
     }
 
-    if (!caster->getVictim())
+    if (!caster->GetVictim())
     {
         SendSysMessage(LANG_SELECTED_TARGET_NOT_HAVE_VICTIM);
         SetSentErrorMessage(true);
@@ -6826,7 +6889,7 @@ bool ChatHandler::HandleCastTargetCommand(const char* args)
 
     caster->SetFacingToObject(m_session->GetPlayer());
 
-    caster->CastSpell(caster->getVictim(), spell, triggered);
+    caster->CastSpell(caster->GetVictim(), spell, triggered);
 
     return true;
 }
@@ -6930,7 +6993,7 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
     {
         for (uint8 i = 0; i < TOTAL_DIFFICULTIES; ++i)
         {
-            Group::BoundInstancesMap& binds = group->GetBoundInstances(i);
+            Group::BoundInstancesMap& binds = group->GetBoundInstances(DungeonDifficulty(i));
             for (Group::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end(); ++itr)
             {
                 InstanceSave* save = itr->second.save;
@@ -7510,7 +7573,7 @@ bool ChatHandler::HandleFreezeCommand(const char* args)
         PSendSysMessage(LANG_COMMAND_FREEZE, name.c_str());
 
         //stop combat + make player unattackable + duel stop + stop some spells
-        player->setFaction(35);
+        player->SetFaction(35);
         player->CombatStop();
         if (player->IsNonMeleeSpellCast(true))
             player->InterruptNonMeleeSpells(true);
@@ -7523,7 +7586,7 @@ bool ChatHandler::HandleFreezeCommand(const char* args)
             {
                 pet->SavePetToDB(PET_SAVE_AS_CURRENT);
                 // not let dismiss dead pet
-                if (pet && pet->IsAlive())
+                if (pet->IsAlive())
                     player->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
             }
         }

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -54,7 +54,7 @@ struct boss_azshir_the_sleeplessAI : public ScriptedAI
             return;
 
         //If we are <50% hp cast Soul Siphon rank 1
-        if (me->GetHealth() * 100 / me->GetMaxHealth() <= 50 && !me->IsNonMeleeSpellCast(false))
+        if (HealthBelowPct(50) && !me->IsNonMeleeSpellCast(false))
         {
             //SoulSiphon_Timer
             if (SoulSiphon_Timer <= diff)

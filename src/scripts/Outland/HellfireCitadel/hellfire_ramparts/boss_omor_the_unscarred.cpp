@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -163,8 +163,8 @@ struct boss_omor_the_unscarredAI : public Scripted_NoMovementAI
         else if (OrbitalStrike_Timer <= diff)
         {
             Unit* temp = NULL;
-            if (me->IsWithinMeleeRange(me->getVictim()))
-                temp = me->getVictim();
+            if (me->IsWithinMeleeRange(me->GetVictim()))
+                temp = me->GetVictim();
             else temp = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
             if (temp && temp->GetTypeId() == TYPEID_PLAYER)
@@ -210,7 +210,7 @@ struct boss_omor_the_unscarredAI : public Scripted_NoMovementAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 if (pTarget)
-                    pTarget = me->getVictim();
+                    pTarget = me->GetVictim();
 
                 DoCast(pTarget, HeroicMode ? H_SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT);
                 Shadowbolt_Timer = 4000 + rand() % 3100;

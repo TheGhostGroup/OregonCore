@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -67,7 +67,7 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
         UnkorUnfriendly_Timer = 0;
         Pulverize_Timer = 3000;
         me->SetStandState(UNIT_STAND_STATE_STAND);
-        me->setFaction(FACTION_HOSTILE);
+        me->SetFaction(FACTION_HOSTILE);
     }
 
     void EnterCombat(Unit* /*who*/) {}
@@ -75,7 +75,7 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
     void DoNice()
     {
         DoScriptText(SAY_SUBMIT, me);
-        me->setFaction(FACTION_FRIENDLY);
+        me->SetFaction(FACTION_FRIENDLY);
         me->SetStandState(UNIT_STAND_STATE_SIT);
         me->RemoveAllAuras();
         me->DeleteThreatList();
@@ -92,12 +92,12 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
                 {
                     for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
-                        Player* pGroupie = itr->getSource();
-                        if (pGroupie &&
-                            pGroupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
-                            pGroupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
+                        Player* groupie = itr->GetSource();
+                        if (groupie && groupie->IsInMap(done_by) &&
+                            groupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
+                            groupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
                         {
-                            pGroupie->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
+                            groupie->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
                             if (!CanDoQuest)
                                 CanDoQuest = true;
                         }
@@ -337,7 +337,7 @@ struct npc_floonAI : public ScriptedAI
         Silence_Timer = 2000;
         Frostbolt_Timer = 4000;
         FrostNova_Timer = 9000;
-        me->setFaction(FACTION_FRIENDLY_FL);
+        me->SetFaction(FACTION_FRIENDLY_FL);
     }
 
     void EnterCombat(Unit* /*who*/) {}
@@ -395,7 +395,7 @@ bool GossipSelect_npc_floon(Player* player, Creature* pCreature, uint32 /*sender
 		break;
 	case GOSSIP_ACTION_INFO_DEF + 2:
         player->CLOSE_GOSSIP_MENU();
-		pCreature->setFaction(1738);
+		pCreature->SetFaction(1738);
         DoScriptText(SAY_FLOON_ATTACK, pCreature, player);
         ((npc_floonAI*)pCreature->AI())->AttackStart(player);
 		break;
@@ -489,7 +489,7 @@ bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, Quest c
     if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
     {
         CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
-        pCreature->setFaction(113);
+        pCreature->SetFaction(113);
     }
     return true;
 }
@@ -593,7 +593,7 @@ struct npc_skywingAI : public npc_escortAI
         switch (i)
         {
         case 7:
-            me->SummonCreature(NPC_LUANGA_IMPRISONER, -3399.274658, 4055.948975, 18.603474, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+            me->SummonCreature(NPC_LUANGA_IMPRISONER, -3399.274658f, 4055.948975f, 18.603474f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
             break;
         case 8:
             pPlayer->AreaExploredOrEventHappens(10898);
@@ -643,7 +643,7 @@ enum eSlim
 
 bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+    if (pCreature->IsVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
         pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetGUID());
@@ -755,7 +755,7 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, const Quest* pQ
         if (npc_akunoAI* pEscortAI = CAST_AI(npc_akunoAI, pCreature->AI()))
         {
             pCreature->SetStandState(UNIT_STAND_STATE_STAND);
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
+            pCreature->SetFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
 
             DoScriptText(SAY_AKU_START, pCreature);
             pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
@@ -777,7 +777,7 @@ CreatureAI* GetAI_npc_akuno(Creature* pCreature)
 
 bool GossipHello_npc_skyguard_handler_deesak(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetReputationRank(1031) >= REP_HONORED)
@@ -1044,7 +1044,7 @@ bool QuestAccept_npc_letoll(Player* pPlayer, Creature* pCreature, const Quest* p
         if (npc_letollAI* pEscortAI = dynamic_cast<npc_letollAI*>(pCreature->AI()))
         {
             DoScriptText(SAY_LE_START, pCreature);
-            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
+            pCreature->SetFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
 
             pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
         }
@@ -1292,36 +1292,36 @@ struct npc_skyguard_prisonerAI : public npc_escortAI
         switch (CalculateWaypointID())
         {
         case 1:
-            AddWaypoint(0, -4108.25, 3032.18, 344.799, 3000);
-            AddWaypoint(1, -4114.41, 3036.73, 344.039);
-            AddWaypoint(2, -4126.41, 3026.07, 344.156);
-            AddWaypoint(3, -4145.17, 3029.69, 337.423);
-            AddWaypoint(4, -4173.69, 3035.72, 343.346);
-            AddWaypoint(5, -4173.70, 3047.37, 343.888);
-            AddWaypoint(6, -4183.47, 3060.62, 344.157, 3000);
-            AddWaypoint(7, -4179.13, 3090.20, 323.971, 30000);
+            AddWaypoint(0, -4108.25f, 3032.18f, 344.799f, 3000);
+            AddWaypoint(1, -4114.41f, 3036.73f, 344.039f);
+            AddWaypoint(2, -4126.41f, 3026.07f, 344.156f);
+            AddWaypoint(3, -4145.17f, 3029.69f, 337.423f);
+            AddWaypoint(4, -4173.69f, 3035.72f, 343.346f);
+            AddWaypoint(5, -4173.70f, 3047.37f, 343.888f);
+            AddWaypoint(6, -4183.47f, 3060.62f, 344.157f, 3000);
+            AddWaypoint(7, -4179.13f, 3090.20f, 323.971f, 30000);
             Start(false, false, pPlayer->GetGUID(), pQuest);
             break;
         case 2:
-            AddWaypoint(0, -3718.81, 3787.24, 302.890, 3000);
-            AddWaypoint(1, -3714.44, 3780.35, 302.075);
-            AddWaypoint(2, -3698.33, 3788.04, 302.171);
-            AddWaypoint(3, -3679.36, 3780.25, 295.077);
-            AddWaypoint(4, -3654.82, 3770.43, 301.291);
-            AddWaypoint(5, -3656.07, 3757.31, 301.985);
-            AddWaypoint(6, -3648.83, 3743.07, 302.173, 3000);
-            AddWaypoint(7, -3659.16, 3714.94, 281.576, 30000);
+            AddWaypoint(0, -3718.81f, 3787.24f, 302.890f, 3000);
+            AddWaypoint(1, -3714.44f, 3780.35f, 302.075f);
+            AddWaypoint(2, -3698.33f, 3788.04f, 302.171f);
+            AddWaypoint(3, -3679.36f, 3780.25f, 295.077f);
+            AddWaypoint(4, -3654.82f, 3770.43f, 301.291f);
+            AddWaypoint(5, -3656.07f, 3757.31f, 301.985f);
+            AddWaypoint(6, -3648.83f, 3743.07f, 302.173f, 3000);
+            AddWaypoint(7, -3659.16f, 3714.94f, 281.576f, 30000);
             Start(false, false, pPlayer->GetGUID(), pQuest);
             break;
         case 3:
-            AddWaypoint(0, -3671.51, 3385.36, 312.956, 3000);
-            AddWaypoint(1, -3677.74, 3379.05, 312.136);
-            AddWaypoint(2, -3667.52, 3366.45, 312.233);
-            AddWaypoint(3, -3672.87, 3343.52, 304.994);
-            AddWaypoint(4, -3679.35, 3319.01, 311.419);
-            AddWaypoint(5, -3692.93, 3318.69, 312.081);
-            AddWaypoint(6, -3704.08, 3309.56, 312.233, 3000);
-            AddWaypoint(7, -3733.99, 3315.77, 292.093, 30000);
+            AddWaypoint(0, -3671.51f, 3385.36f, 312.956f, 3000);
+            AddWaypoint(1, -3677.74f, 3379.05f, 312.136f);
+            AddWaypoint(2, -3667.52f, 3366.45f, 312.233f);
+            AddWaypoint(3, -3672.87f, 3343.52f, 304.994f);
+            AddWaypoint(4, -3679.35f, 3319.01f, 311.419f);
+            AddWaypoint(5, -3692.93f, 3318.69f, 312.081f);
+            AddWaypoint(6, -3704.08f, 3309.56f, 312.233f, 3000);
+            AddWaypoint(7, -3733.99f, 3315.77f, 292.093f, 30000);
             Start(false, false, pPlayer->GetGUID(), pQuest);
             break;
         }
@@ -1482,7 +1482,7 @@ bool QuestAccept_npc_private_weeks(Player* pPlayer, Creature* pCreature, Quest c
 	if (quest->GetQuestId() == 10040)
 	{
 		pPlayer->CastSpell(pPlayer, 32756, true);            // Give Disguise buff
-		pPlayer->CastSpell(pPlayer, 38081, true);			   // Give Female Disguise
+		pPlayer->CastSpell(pPlayer, pPlayer->getGender() == GENDER_FEMALE ? 38081 : 38080, true); // Give Disguise
 	}
 
 	return true;
@@ -1495,16 +1495,19 @@ bool ChooseReward_npc_private_weeks(Player* pPlayer, Creature* pCreature, const 
 		if (pPlayer->HasAura(32756, 0))
 			pPlayer->RemoveAurasDueToSpell(32756);
 
+		if (pPlayer->HasAura(38080, 0))
+			pPlayer->RemoveAurasDueToSpell(38080);
+
 		if (pPlayer->HasAura(38081, 0))
 			pPlayer->RemoveAurasDueToSpell(38081);
 	}
 
-	return true;
+	return false;
 }
 
 bool GossipHello_npc_private_weeks(Player* player, Creature* pCreature)
 {
-	if (pCreature->isQuestGiver())
+	if (pCreature->IsQuestGiver())
 		player->PrepareQuestMenu(pCreature->GetGUID());
 
 	// Give Another Disguise
@@ -1522,7 +1525,7 @@ bool GossipSelect_npc_private_weeks(Player* player, Creature* /*pCreature*/, uin
 	{
 		player->CLOSE_GOSSIP_MENU();
 		player->CastSpell(player, 32756, true);            // Give Another Disguise
-		player->CastSpell(player, 38081, true);			   // 38080 Male one
+		player->CastSpell(player, player->getGender() == GENDER_FEMALE ? 38081 : 38080, true); // Give Disguise
 	}
 
 	return true;
@@ -1539,7 +1542,7 @@ bool QuestAccept_npc_scout_nefris(Player* pPlayer, Creature* pCreature, Quest co
 	if (quest->GetQuestId() == 10041)
 	{
 		pPlayer->CastSpell(pPlayer, 32756, true);            // Give Disguise buff
-		pPlayer->CastSpell(pPlayer, 38081, true);			   // Give Female Disguise
+		pPlayer->CastSpell(pPlayer, pPlayer->getGender() == GENDER_FEMALE ? 38081 : 38080, true); // Give Disguise
 	}
 
 	return true;
@@ -1552,16 +1555,19 @@ bool ChooseReward_npc_scout_nefris(Player* pPlayer, Creature* pCreature, const Q
 		if (pPlayer->HasAura(32756, 0))
 			pPlayer->RemoveAurasDueToSpell(32756);
 
+		if (pPlayer->HasAura(38080, 0))
+			pPlayer->RemoveAurasDueToSpell(38080);
+
 		if (pPlayer->HasAura(38081, 0))
 			pPlayer->RemoveAurasDueToSpell(38081);
 	}
 
-	return true;
+	return false;
 }
 
 bool GossipHello_npc_scout_nefris(Player* player, Creature* pCreature)
 {
-	if (pCreature->isQuestGiver())
+	if (pCreature->IsQuestGiver())
 		player->PrepareQuestMenu(pCreature->GetGUID());
 
 	// Give Another Disguise
@@ -1579,7 +1585,7 @@ bool GossipSelect_npc_scout_nefris(Player* player, Creature* /*pCreature*/, uint
 	{
 		player->CLOSE_GOSSIP_MENU();
 		player->CastSpell(player, 32756, true);            // Give Another Disguise
-		player->CastSpell(player, 38081, true);			   // 38080 Male one
+		player->CastSpell(player, player->getGender() == GENDER_FEMALE ? 38081 : 38080, true); // Give Disguise
 	}
 
 	return true;
@@ -1843,12 +1849,12 @@ struct npc_empoorAI : public ScriptedAI
 
 	void Reset()
 	{
-		me->setFaction(35);
+		me->SetFaction(35);
 		me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
 		if (Creature* guard = me->FindNearestCreature(18483, 15, true))
 		{
-			guard->setFaction(35);
+			guard->SetFaction(35);
 		}
 
 		reset_timer = 0;
@@ -1867,12 +1873,12 @@ struct npc_empoorAI : public ScriptedAI
 		if (done_by->GetTypeId() == TYPEID_PLAYER)
 			if ((me->GetHealth() - damage) * 100 / me->GetMaxHealth() < 20)
 			{
-				me->setFaction(35);
+				me->SetFaction(35);
 				me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
 				if (Creature* guard = me->FindNearestCreature(18483, 15, true))
 				{
-					guard->setFaction(35);
+					guard->SetFaction(35);
 				}
 
 				damage = 0;
@@ -1913,7 +1919,7 @@ CreatureAI* GetAI_npc_empoor(Creature* pCreature)
 
 bool GossipHello_npc_empoor(Player* player, Creature* pCreature)
 {
-	if (pCreature->isQuestGiver())
+	if (pCreature->IsQuestGiver())
 		player->PrepareQuestMenu(pCreature->GetGUID());
 
 	if (player->GetQuestStatus(9978) == QUEST_STATUS_COMPLETE)
@@ -1929,13 +1935,13 @@ bool GossipSelect_npc_empoor(Player* player, Creature* pCreature, uint32 /*sende
 	{
 		player->CLOSE_GOSSIP_MENU();
 		DoScriptText(SAY_MEANING, pCreature, player);
-		pCreature->setFaction(14);
+		pCreature->SetFaction(14);
 
 		((npc_empoorAI*)pCreature->AI())->AttackStart(player);
 
 		if (Creature* guard = pCreature->FindNearestCreature(18483, 15, true))
 		{
-			guard->setFaction(14);
+			guard->SetFaction(14);
 		}
 	}
 
@@ -2532,6 +2538,46 @@ CreatureAI* GetAI_npc_terokk(Creature* pCreature)
 	return new npc_terokkAI(pCreature);
 }
 
+/*######
+## QUEST_FIRES_OVER_SKETTIS (11007)
+######*/
+
+struct npc_kalliri_triggerAI : public ScriptedAI
+{
+    npc_kalliri_triggerAI(Creature* c) : ScriptedAI(c) { }
+
+    bool spellHit;
+
+    void Reset()
+    {
+        spellHit = false;
+    }
+
+    void SpellHit(Unit* caster, const SpellEntry* spell)
+    {
+        if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 39844 && !spellHit)
+        {
+            if (Player* plWho = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                plWho->KilledMonsterCredit(22991);
+                me->DisappearAndDie();
+
+                if (GameObject* egg = me->FindNearestGameObject(185549, 2.0f))
+                {
+                    egg->SetGoState(GO_STATE_ACTIVE);
+                }
+
+                spellHit = true;
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_kalliri_trigger(Creature* pCreature)
+{
+    return new npc_kalliri_triggerAI(pCreature);
+}
+
 void AddSC_terokkar_forest()
 {
     Script* newscript;
@@ -2565,7 +2611,7 @@ void AddSC_terokkar_forest()
     newscript = new Script;
     newscript->Name = "npc_isla_starmane";
     newscript->GetAI = &GetAI_npc_isla_starmaneAI;
-    newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
+    newscript->QuestAccept = &QuestAccept_npc_isla_starmane;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -2577,7 +2623,7 @@ void AddSC_terokkar_forest()
     newscript = new Script;
     newscript->Name = "npc_skywing";
     newscript->GetAI = &GetAI_npc_skywingAI;
-    newscript->pQuestAccept = &QuestAccept_npc_skywing;
+    newscript->QuestAccept = &QuestAccept_npc_skywing;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -2589,13 +2635,13 @@ void AddSC_terokkar_forest()
     newscript = new Script;
     newscript->Name = "npc_akuno";
     newscript->GetAI = &GetAI_npc_akuno;
-    newscript->pQuestAccept = &QuestAccept_npc_akuno;
+    newscript->QuestAccept = &QuestAccept_npc_akuno;
     newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_letoll";
     newscript->GetAI = &GetAI_npc_letoll;
-    newscript->pQuestAccept = &QuestAccept_npc_letoll;
+    newscript->QuestAccept = &QuestAccept_npc_letoll;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -2627,7 +2673,7 @@ void AddSC_terokkar_forest()
     newscript = new Script;
     newscript->Name = "npc_skyguard_prisoner";
     newscript->GetAI = &GetAI_npc_skyguard_prisoner;
-    newscript->pQuestAccept = &QuestAccept_npc_skyguard_prisoner;
+    newscript->QuestAccept = &QuestAccept_npc_skyguard_prisoner;
     newscript->RegisterSelf();
 
 	newscript = new Script;
@@ -2639,7 +2685,7 @@ void AddSC_terokkar_forest()
 	newscript->Name = "npc_private_weeks";
 	newscript->pGossipHello = &GossipHello_npc_private_weeks;
 	newscript->pGossipSelect = &GossipSelect_npc_private_weeks;
-	newscript->pQuestAccept = &QuestAccept_npc_private_weeks;
+	newscript->QuestAccept = &QuestAccept_npc_private_weeks;
 	newscript->pChooseReward = &ChooseReward_npc_private_weeks;
 	newscript->RegisterSelf();
 
@@ -2647,7 +2693,7 @@ void AddSC_terokkar_forest()
 	newscript->Name = "npc_scout_nefris";
 	newscript->pGossipHello = &GossipHello_npc_scout_nefris;
 	newscript->pGossipSelect = &GossipSelect_npc_scout_nefris;
-	newscript->pQuestAccept = &QuestAccept_npc_scout_nefris;
+	newscript->QuestAccept = &QuestAccept_npc_scout_nefris;
 	newscript->pChooseReward = &ChooseReward_npc_scout_nefris;
 	newscript->RegisterSelf();
 
@@ -2719,5 +2765,10 @@ void AddSC_terokkar_forest()
 	newscript->Name = "npc_skyguard_ace";
 	newscript->GetAI = &GetAI_npc_skyguard_ace;
 	newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_kalliri_trigger";
+    newscript->GetAI = &GetAI_npc_kalliri_trigger;
+    newscript->RegisterSelf();
 }
 

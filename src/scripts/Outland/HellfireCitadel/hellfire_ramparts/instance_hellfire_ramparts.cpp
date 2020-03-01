@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -64,7 +64,7 @@ struct instance_ramparts : public ScriptedInstance
         {
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                if (Player* plr = itr->getSource())
+                if (Player* plr = itr->GetSource())
                     return plr;
             }
         }

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -68,8 +68,8 @@ struct boss_flamegorAI : public ScriptedAI
         if (WingBuffet_Timer <= diff)
         {
             DoCastVictim( SPELL_WINGBUFFET);
-            if (DoGetThreat(me->getVictim()))
-                DoModifyThreatPercent(me->getVictim(), -75);
+            if (DoGetThreat(me->GetVictim()))
+                DoModifyThreatPercent(me->GetVictim(), -75);
 
             WingBuffet_Timer = 25000;
         }

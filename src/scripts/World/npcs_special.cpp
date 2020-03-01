@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -37,6 +37,7 @@ npc_sayge                   100%    Darkmoon event fortune teller, buff player b
 npc_snake_trap_serpents     100%    AI for snakes that summoned by Snake Trap
 npc_force_of_nature_treants 100%    AI for force of nature (druid spell)
 mob_inferno_infernal        100%    AI for Inferno (warlock spell)
+npc_barmaid                 100%    Reponsive emotes for barmaids
 EndContentData */
 
 #include "ScriptMgr.h"
@@ -104,7 +105,7 @@ struct npc_chicken_cluckAI : public ScriptedAI
     void Reset()
     {
         ResetFlagTimer = 120000;
-        me->setFaction(FACTION_CHICKEN);
+        me->SetFaction(FACTION_CHICKEN);
         me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
 
@@ -135,7 +136,7 @@ struct npc_chicken_cluckAI : public ScriptedAI
                 if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand32() % 30 == 1)
                 {
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFaction(FACTION_FRIENDLY);
                     DoScriptText(EMOTE_HELLO, me);
                 }
                 break;
@@ -143,7 +144,7 @@ struct npc_chicken_cluckAI : public ScriptedAI
                 if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_COMPLETE)
                 {
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                    me->setFaction(FACTION_FRIENDLY);
+                    me->SetFaction(FACTION_FRIENDLY);
                     DoScriptText(EMOTE_CLUCK_TEXT, me);
                 }
                 break;
@@ -910,7 +911,7 @@ CreatureAI* GetAI_npc_guardian(Creature* pCreature)
 
 bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     bool canBuy;
@@ -977,7 +978,7 @@ bool GossipHello_npc_mount_vendor(Player* pPlayer, Creature* pCreature)
 
     if (canBuy)
     {
-        if (pCreature->isVendor())
+        if (pCreature->IsVendor())
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
         pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
     }
@@ -1002,10 +1003,10 @@ bool GossipSelect_npc_mount_vendor(Player* pPlayer, Creature* pCreature, uint32 
 
 bool GossipHello_npc_rogue_trainer(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pCreature->isTrainer())
+    if (pCreature->IsTrainer())
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
     if (pCreature->CanTrainAndResetTalentsOf(pPlayer))
@@ -1076,7 +1077,7 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
 
 bool GossipHello_npc_sayge(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->HasSpellCooldown(SPELL_INT) ||
@@ -1434,7 +1435,7 @@ struct npc_force_of_nature_treantsAI : public ScriptedAI
         if (!Owner)
             return;
 
-        if (!me->getVictim())
+        if (!me->GetVictim())
         {
             if (Unit* target = Owner->getAttackerForHelper())
                 AttackStart(target);
@@ -1494,8 +1495,9 @@ struct npc_snake_trap_serpentsAI : public ScriptedAI
 
         //Add delta to make them not all hit the same time
         uint32 delta = (rand() % 7) * 100;
-        me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, Info->baseattacktime + delta);
-        me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
+        CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), Info->unit_class, Info->exp);
+        me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, Info->BaseAttackTime + delta);
+        me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, cCLS->BaseMeleeAttackPower);
 
         if (Unit* attacker = Owner->getAttackerForHelper())
         {
@@ -1509,7 +1511,7 @@ struct npc_snake_trap_serpentsAI : public ScriptedAI
         if (!Owner)
             return;
 
-        if (!me->getVictim())
+        if (!me->GetVictim())
         {
             if (Owner->getAttackerForHelper())
                 AttackStart(Owner->getAttackerForHelper());
@@ -1695,7 +1697,7 @@ struct mob_rift_spawnAI : public ScriptedAI
     {
         DoCast(me, SPELL_RIFT_SPAWN_INVISIBILITY, true);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
-        me->setFaction(FACTION_HOSTILE);
+        me->SetFaction(FACTION_HOSTILE);
 
         creatureActive = false;
         questActive = false;
@@ -1713,7 +1715,7 @@ struct mob_rift_spawnAI : public ScriptedAI
         {
             escapeTimer = 31000;
             damage = 0;
-            me->setFaction(FACTION_NEUTRAL);
+            me->SetFaction(FACTION_NEUTRAL);
             me->CombatStop();
             me->RemoveAllAuras();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
@@ -1836,6 +1838,86 @@ CreatureAI* GetAI_mob_inferno_infernal(Creature* _Creature)
     return new mob_inferno_infernal(_Creature);
 }
 
+/*######
+## npc_barmaid
+######*/
+
+enum eBarmaid
+{
+	SAY_BARMAID1 = -1910260,
+	SAY_BARMAID2_MALE = -1910261,
+	SAY_BARMAID2_FEMALE = -1910262,
+	SAY_BARMAID3 = -1910263,
+	SAY_BARMAID4 = -1910264,
+	SAY_BARMAID5 = -1910265,
+	SAY_BARMAID6 = -1910266,
+
+	EMOTE_BARMAID_RUDE = -1910259,
+};
+
+struct npc_barmaidAI : public ScriptedAI
+{
+	npc_barmaidAI(Creature* c) : ScriptedAI(c) {}
+
+	void ReceiveEmote(Player* pPlayer, uint32 emote)
+	{
+		switch (emote)
+		{
+		case TEXT_EMOTE_APPLAUD:
+		case TEXT_EMOTE_BOW:
+			me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+			break;
+		case TEXT_EMOTE_DANCE:
+			me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
+			break;
+		case TEXT_EMOTE_FLEX:
+			me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+			break;
+		case TEXT_EMOTE_KISS:
+			me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
+			break;
+		case TEXT_EMOTE_RUDE:
+			me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+			DoScriptText(EMOTE_BARMAID_RUDE, me, pPlayer);
+			break;
+		case TEXT_EMOTE_SHY:
+			me->HandleEmoteCommand(EMOTE_ONESHOT_KISS);
+			break;
+		case TEXT_EMOTE_WAVE:
+			switch (urand(0, 5))
+			{
+				case 0:
+					DoScriptText(SAY_BARMAID1, me);
+					break;
+				case 1:
+					if (pPlayer->getGender() == 0)
+						DoScriptText(SAY_BARMAID2_MALE, me);
+					else
+						DoScriptText(SAY_BARMAID2_FEMALE, me);
+					break;
+				case 2:
+					DoScriptText(SAY_BARMAID3, me);
+					break;
+				case 3:
+					DoScriptText(SAY_BARMAID4, me, pPlayer);
+					break;
+				case 4:
+					DoScriptText(SAY_BARMAID5, me);
+					break;
+				case 5:
+					DoScriptText(SAY_BARMAID6, me, pPlayer);
+					break;
+			}
+			break;
+		}
+	}
+};
+
+CreatureAI* GetAI_npc_barmaid(Creature* pCreature)
+{
+	return new npc_barmaidAI(pCreature);
+}
+
 void AddSC_npcs_special()
 {
     Script* newscript;
@@ -1849,7 +1931,7 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name = "npc_chicken_cluck";
     newscript->GetAI = &GetAI_npc_chicken_cluck;
-    newscript->pQuestAccept =   &QuestAccept_npc_chicken_cluck;
+    newscript->QuestAccept =   &QuestAccept_npc_chicken_cluck;
     newscript->pQuestComplete = &QuestComplete_npc_chicken_cluck;
     newscript->RegisterSelf();
 
@@ -1866,7 +1948,7 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name = "npc_doctor";
     newscript->GetAI = &GetAI_npc_doctor;
-    newscript->pQuestAccept = &QuestAccept_npc_doctor;
+    newscript->QuestAccept = &QuestAccept_npc_doctor;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -1947,9 +2029,14 @@ void AddSC_npcs_special()
     newscript->pGOHello  = &GossipHello_go_containment_coffer;
     newscript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "mob_inferno_infernal";
-    newscript->GetAI = &GetAI_mob_inferno_infernal;
-    newscript->RegisterSelf();
+	newscript = new Script;
+	newscript->Name = "mob_inferno_infernal";
+	newscript->GetAI = &GetAI_mob_inferno_infernal;
+	newscript->RegisterSelf();
+
+	newscript = new Script;
+	newscript->Name = "npc_barmaid";
+	newscript->GetAI = &GetAI_npc_barmaid;
+	newscript->RegisterSelf();
 }
 

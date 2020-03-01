@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -326,7 +326,7 @@ Unit* SentinelAbilityAura::GetTriggerTarget() const
     case SPELL_THUNDER_BUFF:
     case SPELL_MSTRIKE_BUFF:
     case SPELL_STORM_BUFF:
-        return aOwner->me->getVictim();
+        return aOwner->me->GetVictim();
 
     case SPELL_MANAB_BUFF:
         return aOwner->GetHatedManaUser();

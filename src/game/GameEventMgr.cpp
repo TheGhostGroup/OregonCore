@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "GameEventMgr.h"
@@ -1471,14 +1471,16 @@ void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
         ObjectAccessor::Guard guard(*HashMapHolder<Creature>::GetLock());
         HashMapHolder<Creature>::MapType const& m = ObjectAccessor::Instance().GetCreatures();
         for (HashMapHolder<Creature>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
-            if (iter->second->IsInWorld())
-                iter->second->AI()->sOnGameEvent(activate, event_id);
+            if (iter->second && iter->second->IsInWorld())
+                if (iter->second->AI())
+                    iter->second->AI()->sOnGameEvent(activate, event_id);
     }
     {
         ObjectAccessor::Guard guard(*HashMapHolder<GameObject>::GetLock());
         HashMapHolder<GameObject>::MapType const& m = ObjectAccessor::GetGameObjects();
         for (HashMapHolder<GameObject>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
-            if (iter->second->IsInWorld())
-                iter->second->AI()->OnGameEvent(activate, event_id);
+            if (iter->second && iter->second->IsInWorld())
+                if (iter->second->AI())
+                    iter->second->AI()->OnGameEvent(activate, event_id);
     }
 }

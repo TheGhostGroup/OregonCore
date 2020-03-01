@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -146,7 +146,7 @@ struct boss_mandokirAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (me->getVictim() && me->IsAlive())
+        if (me->GetVictim() && me->IsAlive())
         {
             if (!CombatStart)
             {
@@ -154,7 +154,7 @@ struct boss_mandokirAI : public ScriptedAI
                 me->Dismount();
 
                 // And summon his raptor
-                me->SummonCreature(OHGAN, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                me->SummonCreature(OHGAN, me->GetVictim()->GetPositionX(), me->GetVictim()->GetPositionY(), me->GetVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 CombatStart = true;
             }
 
@@ -253,7 +253,7 @@ struct boss_mandokirAI : public ScriptedAI
                     Fear_Timer -= diff;
 
                 // Mortal Strike if target is below 50% hp
-                if (me->getVictim() && me->getVictim()->GetHealth() < me->getVictim()->GetMaxHealth() * 0.5f)
+                if (me->GetVictim() && me->GetVictim()->GetHealth() < me->GetVictim()->GetMaxHealth() * 0.5f)
                 {
                     if (MortalStrike_Timer <= diff)
                     {

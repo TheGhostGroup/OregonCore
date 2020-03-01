@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -86,7 +86,7 @@ struct boss_golemaggAI : public ScriptedAI
             uiPyroblastTimer -= uiDiff;
 
         // Enrage
-        if (!bEnraged && me->GetHealth() * 100 / me->GetMaxHealth() < 10)
+        if (!bEnraged && HealthBelowPct(10))
         {
             DoCast(me, SPELL_ENRAGE);
             bEnraged = true;
@@ -137,7 +137,7 @@ struct mob_core_ragerAI : public ScriptedAI
 
     void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
     {
-        if (me->GetHealth() * 100 / me->GetMaxHealth() < 50)
+        if (HealthBelowPct(50))
         {
             if (pInstance)
             {

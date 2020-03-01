@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -68,7 +68,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
             return;
 
         //If we are <25% hp cast Heal
-        if (me->GetHealth() * 100 / me->GetMaxHealth() <= 25 && !me->IsNonMeleeSpellCast(false) && Heal_Timer <= diff)
+        if (HealthBelowPct(25) && !me->IsNonMeleeSpellCast(false) && Heal_Timer <= diff)
         {
             DoCast(me, SPELL_HEAL);
             Heal_Timer = 30000;
@@ -96,7 +96,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
         else Sleep_Timer -= diff;
 
         //PowerWordShield_Timer
-        if (!PowerWordShield && me->GetHealth() * 100 / me->GetMaxHealth() <= 25)
+        if (!PowerWordShield && HealthBelowPct(25))
         {
             DoCast(me, SPELL_POWERWORDSHIELD);
             PowerWordShield = true;

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef __WORLD_H
@@ -195,6 +195,7 @@ enum WorldConfigs
     CONFIG_INSTANT_LOGOUT,
     CONFIG_DISABLE_BREATHING,
     CONFIG_ALL_TAXI_PATHS,
+    CONFIG_INSTANT_TAXI,
     CONFIG_DECLINED_NAMES_USED,
     CONFIG_LISTEN_RANGE_SAY,
     CONFIG_LISTEN_RANGE_TEXTEMOTE,

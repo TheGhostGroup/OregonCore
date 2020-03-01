@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef TRANSPORTS_H
@@ -31,7 +31,7 @@ class Transport : public GameObject
 
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32>& mapids);
-        void Update(uint32 p_time);
+        void Update(uint32 p_time) override;
         bool AddPassenger(Player* passenger);
         bool RemovePassenger(Player* passenger);
         void CheckForEvent(uint32 entry, uint32 wp_id);

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef _GROUPREFERENCE_H
@@ -27,12 +27,12 @@ class GroupReference : public Reference<Group, Player>
 {
     protected:
         uint8 iSubGroup;
-        void targetObjectBuildLink();
-        void targetObjectDestroyLink();
-        void sourceObjectDestroyLink();
+        void targetObjectBuildLink() override;
+        void targetObjectDestroyLink() override;
+        void sourceObjectDestroyLink() override;
     public:
         GroupReference() : Reference<Group, Player>(), iSubGroup(0) {}
-        ~GroupReference()
+        ~GroupReference() override
         {
             unlink();
         }

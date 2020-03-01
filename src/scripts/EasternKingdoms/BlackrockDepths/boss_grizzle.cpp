@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -68,7 +68,7 @@ struct boss_grizzleAI : public ScriptedAI
         else GroundTremor_Timer -= diff;
 
         //Frenzy_Timer
-        if (me->GetHealth() * 100 / me->GetMaxHealth() < 51)
+        if (HealthBelowPct(50))
         {
             if (Frenzy_Timer <= diff)
             {

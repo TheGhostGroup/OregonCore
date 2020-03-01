@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -97,7 +97,7 @@ struct boss_venoxisAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if ((me->GetHealth() * 100 / me->GetMaxHealth() > 50))
+        if (HealthAbovePct(50))
         {
             if (Dispell_Timer <= diff)
             {
@@ -164,8 +164,14 @@ struct boss_venoxisAI : public ScriptedAI
                 DoCast(me, SPELL_SNAKE_FORM);
                 me->SetObjectScale(2.0f);
                 const CreatureInfo* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + ((cinfo->mindmg / 100) * 25)));
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + ((cinfo->maxdmg / 100) * 25)));
+                CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), cinfo->unit_class, cinfo->exp);
+                float basedamage = cCLS->BaseDamage;
+
+                float weaponBaseMinDamage = basedamage;
+                float weaponBaseMaxDamage = basedamage * 1.5;
+
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (weaponBaseMinDamage + ((weaponBaseMinDamage / 100) * 25)));
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (weaponBaseMaxDamage + ((weaponBaseMaxDamage / 100) * 25)));
                 me->UpdateDamagePhysical(BASE_ATTACK);
                 DoResetThreat();
                 PhaseTwo = true;
@@ -189,7 +195,7 @@ struct boss_venoxisAI : public ScriptedAI
             else
                 VenomSpit_Timer -= diff;
 
-            if (PhaseTwo && (me->GetHealth() * 100 / me->GetMaxHealth() < 11))
+            if (PhaseTwo && HealthBelowPct(10))
             {
                 if (!InBerserk)
                 {

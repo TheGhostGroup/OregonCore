@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -57,7 +57,7 @@ struct boss_baron_geddonAI : public ScriptedAI
             return;
 
         //If we are <2% hp cast Armageddom
-        if (me->GetHealth() * 100 / me->GetMaxHealth() <= 2)
+        if (HealthBelowPct(2))
         {
             me->InterruptNonMeleeSpells(true);
             DoCast(me, SPELL_ARMAGEDDOM);

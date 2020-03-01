@@ -1,5 +1,5 @@
-# Copyright (C) 2008-2012 OregonCore <http://www.oregoncore.com/>
-# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2018 OregonCore <https://oregon-core.net/>
+# Copyright (C) 2008-2012 TrinityCore <https://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -24,7 +24,7 @@ if (NOT WIN32)
         else()
             set(val "${Esc}[1m${val}${Esc}[m") # bold default
         endif()
-        
+
         set(star "${Esc}[1;34m* ${Esc}[m") # bold blue
         set(opt  "${Esc}[1;33m${opt}${Esc}[m") # bold yellow
         message("${star}${opt} ${val}")
@@ -89,13 +89,6 @@ else()
   ShowOption("Build scripts w/PCH    :" "No")
 endif()
 
-if( USE_SFMT )
-  ShowOption("Use SFMT for RNG       :" "Yes")
-  add_definitions(-DUSE_SFMT_FOR_RNG)
-else()
-  ShowOption("Use SFMT for RNG       :" "No  (default)")
-endif()
-
 if( WITH_WARNINGS )
   ShowOption("Show all warnings      :" "Yes")
   add_definitions(-D__SHOW_STUPID_WARNINGS__)
@@ -109,14 +102,6 @@ if( WITH_COREDEBUG )
 else()
   ShowOption("Use coreside debug     :" "No  (default)")
 endif()
-
-if( WIN32 )
-  if( USE_MYSQL_SOURCES )
-    ShowOption("Use MySQL sourcetree   :" "Yes (default)")
-  else()
-    ShowOption("Use MySQL sourcetree   :" "No")
-  endif()
-endif( WIN32 )
 
 if( WITH_DOCS )
     ShowOption("Build w/ documentation :" "Yes")

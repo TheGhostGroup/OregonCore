@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -191,8 +191,8 @@ struct boss_vemAI : public ScriptedAI
         if (KnockBack_Timer <= diff)
         {
             DoCastVictim(SPELL_KNOCKBACK);
-            if (DoGetThreat(me->getVictim()))
-                DoModifyThreatPercent(me->getVictim(), -80);
+            if (DoGetThreat(me->GetVictim()))
+                DoModifyThreatPercent(me->GetVictim(), -80);
             KnockBack_Timer = 15000 + rand() % 10000;
         }
         else KnockBack_Timer -= diff;

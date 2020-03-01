@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -84,7 +84,6 @@ bool Bag::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
-    SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags);
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
 
     // Setting the number of Slots the Container has

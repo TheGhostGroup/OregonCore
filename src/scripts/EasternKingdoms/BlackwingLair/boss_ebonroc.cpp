@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -81,7 +81,7 @@ struct boss_ebonrocAI : public ScriptedAI
         }
         else ShadowOfEbonroc_Timer -= diff;
 
-        if (me->getVictim()->HasAura(SPELL_SHADOWOFEBONROC, 0))
+        if (me->GetVictim()->HasAura(SPELL_SHADOWOFEBONROC, 0))
         {
             if (Heal_Timer <= diff)
             {

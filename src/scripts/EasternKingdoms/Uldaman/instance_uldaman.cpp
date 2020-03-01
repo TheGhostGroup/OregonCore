@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -140,11 +140,10 @@ struct instance_uldaman : public ScriptedInstance
 
     void SetFrozenState(Creature* pCreature)
     {
-        pCreature->setFaction(35);
+        pCreature->SetFaction(35);
         pCreature->RemoveAllAuras();
-        //creature->RemoveFlag (UNIT_FIELD_FLAGS,UNIT_FLAG_ANIMATION_FROZEN);
         pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+		pCreature->SetRooted(true);
     }
 
     void SetDoor(uint64 guid, bool open)
@@ -170,10 +169,10 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
         {
             Creature* pTarget = instance->GetCreature(*i);
-            if (!pTarget || !pTarget->IsAlive() || pTarget->getFaction() == 14)
+            if (!pTarget || !pTarget->IsAlive() || pTarget->GetFaction() == 14)
                 continue;
-            pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-            pTarget->setFaction(14);
+			pTarget->SetRooted(false);
+            pTarget->SetFaction(14);
             pTarget->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             return;        // only want the first one we find
         }
@@ -191,7 +190,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature* pTarget = instance->GetCreature(*i);
-            if (!pTarget || !pTarget->IsAlive() || pTarget->getFaction() == 14)
+            if (!pTarget || !pTarget->IsAlive() || pTarget->GetFaction() == 14)
                 continue;
             archaedas->CastSpell(pTarget, SPELL_AWAKEN_VAULT_WALKER, true);
             pTarget->CastSpell(pTarget, SPELL_ARCHAEDAS_AWAKEN, true);
@@ -206,7 +205,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature* pTarget = instance->GetCreature(*i);
-            if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
+            if (!pTarget || pTarget->isDead() || pTarget->GetFaction() != 14)
                 continue;
             pTarget->setDeathState(JUST_DIED);
             pTarget->RemoveCorpse();
@@ -216,7 +215,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
             Creature* pTarget = instance->GetCreature(*i);
-            if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
+            if (!pTarget || pTarget->isDead() || pTarget->GetFaction() != 14)
                 continue;
             pTarget->setDeathState(JUST_DIED);
             pTarget->RemoveCorpse();
@@ -226,7 +225,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
             Creature* pTarget = instance->GetCreature(*i);
-            if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
+            if (!pTarget || pTarget->isDead() || pTarget->GetFaction() != 14)
                 continue;
             pTarget->setDeathState(JUST_DIED);
             pTarget->RemoveCorpse();
@@ -252,8 +251,8 @@ struct instance_uldaman : public ScriptedInstance
         if (!ironaya)
             return;
 
-        ironaya->setFaction(415);
-        ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+        ironaya->SetFaction(415);
+		ironaya->SetRooted(false);
         ironaya->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 

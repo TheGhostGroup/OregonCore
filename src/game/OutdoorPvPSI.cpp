@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "OutdoorPvPSI.h"
@@ -104,7 +104,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* plr, uint32 trigger)
             // add 19 honor
             plr->RewardHonor(NULL, 1, 19);
             // add 20 cenarion circle repu
-            plr->ModifyFactionReputation(609, 20);
+            plr->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
             plr->KilledMonsterCredit(SI_TURNIN_QUEST_CM_A, 0);
         }
@@ -129,7 +129,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* plr, uint32 trigger)
             // add 19 honor
             plr->RewardHonor(NULL, 1, 19);
             // add 20 cenarion circle repu
-            plr->ModifyFactionReputation(609, 20);
+            plr->GetReputationMgr().ModifyReputation(sFactionStore.LookupEntry(609), 20);
             // complete quest
             plr->KilledMonsterCredit(SI_TURNIN_QUEST_CM_H, 0);
         }
@@ -162,7 +162,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* plr, uint32 spellId)
                             return true;
                         }
 
-                        if (!go->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), plr->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
+                        if (!go->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map, 0x00000001, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), plr->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
                             delete go;
                         else
                         {
@@ -189,7 +189,7 @@ bool OutdoorPvPSI::HandleDropFlag(Player* plr, uint32 spellId)
                             delete go;
                             return true;
                         }
-                        if (!go->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map , plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), plr->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
+                        if (!go->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map , 0x00000001, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ(), plr->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
                             delete go;
                         else
                         {

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OREGON_RANDOMMOTIONGENERATOR_H
@@ -28,8 +28,8 @@ class RandomMovementGenerator
     : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:
-        // Wander dist is related on db spawn dist. So what if we wanna set eandom movement on summoned creature?!
-        RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
+        // Wander dist is related on db spawn dist. So what if we wanna set random movement on summoned creature?!
+        RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), i_nextMove(0), wander_distance(spawn_dist) {}
 
         void _setRandomLocation(T&);
         void Initialize(T&);

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "MMapCommon.h"
@@ -387,8 +387,8 @@ void MapBuilder::buildNavMesh(uint32 mapID, dtNavMesh*& navMesh)
     //if (tileBits < 1) tileBits = 1;                                     // need at least one bit!
     //int polyBits = sizeof(dtPolyRef)*8 - SALT_MIN_BITS - tileBits;
 
-    int tileBits = STATIC_TILE_BITS;
-    int polyBits = STATIC_POLY_BITS;
+    int tileBits = DT_TILE_BITS;
+    int polyBits = DT_POLY_BITS;
 
     (void)(tileBits); // unused, kept for some reason
     (void)(polyBits); // unused, kept for some reason
@@ -503,12 +503,12 @@ void MapBuilder::buildMoveMapTile(uint32 mapID, uint32 tileX, uint32 tileY,
     config.borderSize = config.walkableRadius + 3;
     config.maxEdgeLen = VERTEX_PER_TILE + 1;        // anything bigger than tileSize
     config.walkableHeight = m_bigBaseUnit ? 2 : 4;
-    config.walkableClimb = m_bigBaseUnit ? 1 : 2;   // keep less than walkableHeight
+    config.walkableClimb = m_bigBaseUnit ? 3 : 6;   // keep less than walkableHeight
     config.minRegionArea = rcSqr(60);
     config.mergeRegionArea = rcSqr(50);
     config.maxSimplificationError = 1.8f;           // eliminates most jagged edges (tiny polygons)
-    config.detailSampleDist = config.cs * 64;
-    config.detailSampleMaxError = config.ch * 2;
+    config.detailSampleDist = config.cs * 16;
+    config.detailSampleMaxError = config.ch * 1;
 
     // this sets the dimensions of the heightfield - should maybe happen before border padding
     rcCalcGridSize(config.bmin, config.bmax, config.cs, &config.width, &config.height);

@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef _VMAPMANAGER2_H
@@ -22,6 +22,7 @@
 #include "Utilities/UnorderedMap.h"
 #include "Platform/Define.h"
 #include <ace/Thread_Mutex.h>
+#include <vector>
 
 //===========================================================
 

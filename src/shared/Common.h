@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef OREGONCORE_COMMON_H
@@ -108,7 +108,6 @@
 #include <ace/Thread_Mutex.h>
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define FD_SETSIZE 4096
 #  include <windows.h>
 #  include <ace/config-all.h>
 #  include <ws2tcpip.h>

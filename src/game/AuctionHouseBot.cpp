@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "ObjectMgr.h"
@@ -46,6 +46,13 @@ AuctionHouseBot::AuctionHouseBot()
     debug_Out_Filters = false;
     AHBSeller = false;
     AHBBuyer = false;
+
+    BuyMethod = false;
+    SellMethod = false;
+
+    AHBplayerAccount = 0;
+    AHBplayerGUID = 0;
+    ItemsPerCycle = 0;
 
     //Begin Filters
 

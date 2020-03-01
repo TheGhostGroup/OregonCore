@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -66,7 +66,7 @@ struct mob_aquementasAI : public ScriptedAI
     {
         SendItem_Timer = 0;
         SwitchFaction_Timer = 10000;
-        me->setFaction(35);
+        me->SetFaction(35);
         isFriendly = true;
 
         AquaJet_Timer = 5000;
@@ -98,7 +98,7 @@ struct mob_aquementasAI : public ScriptedAI
         {
             if (SwitchFaction_Timer <= diff)
             {
-                me->setFaction(91);
+                me->SetFaction(91);
                 isFriendly = false;
             }
             else SwitchFaction_Timer -= diff;
@@ -111,8 +111,8 @@ struct mob_aquementasAI : public ScriptedAI
         {
             if (SendItem_Timer <= diff)
             {
-                if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
-                    SendItem(me->getVictim());
+                if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER)
+                    SendItem(me->GetVictim());
                 SendItem_Timer = 5000;
             }
             else SendItem_Timer -= diff;
@@ -164,7 +164,16 @@ enum eCustodian
 
 struct npc_custodian_of_timeAI : public npc_escortAI
 {
-    npc_custodian_of_timeAI(Creature* c) : npc_escortAI(c) {}
+    npc_custodian_of_timeAI(Creature* c) : npc_escortAI(c) 
+    {
+        TempSummon* summon = c->ToTempSummon();
+        if (summon)
+        {
+            Unit* summoner = summon->GetSummoner();
+            if (summoner && summoner->GetTypeId() == TYPEID_PLAYER)
+                Start(false, false, summoner->GetGUID());
+        }
+    }
 
     void WaypointReached(uint32 i)
     {
@@ -234,21 +243,7 @@ struct npc_custodian_of_timeAI : public npc_escortAI
         }
     }
 
-    void MoveInLineOfSight(Unit* who)
-    {
-        if (HasEscortState(STATE_ESCORT_ESCORTING))
-            return;
-
-        if (who->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (who->HasAura(34877, 1) && CAST_PLR(who)->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
-            {
-                float Radius = 10.0f;
-                if (me->IsWithinDistInMap(who, Radius))
-                    Start(false, false, who->GetGUID());
-            }
-        }
-    }
+    void MoveInLineOfSight(Unit* who) {}
 
     void EnterCombat(Unit* /*who*/) {}
     void Reset() { }
@@ -270,10 +265,10 @@ CreatureAI* GetAI_npc_custodian_of_time(Creature* pCreature)
 
 bool GossipHello_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if (pCreature->isVendor() && pPlayer->GetQuestRewardStatus(2662))
+    if (pCreature->IsVendor() && pPlayer->GetQuestRewardStatus(2662))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
@@ -297,7 +292,7 @@ bool GossipSelect_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature, u
 
 bool GossipHello_npc_steward_of_time(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(10279) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestRewardStatus(10279))
@@ -340,7 +335,7 @@ bool GossipSelect_npc_steward_of_time(Player* pPlayer, Creature* /*pCreature*/, 
 
 bool GossipHello_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(2954) == QUEST_STATUS_INCOMPLETE)
@@ -458,7 +453,7 @@ bool QuestAccept_npc_OOX17(Player* pPlayer, Creature* pCreature, Quest const* qu
 {
     if (quest->GetQuestId() == Q_OOX17)
     {
-        pCreature->setFaction(113);
+        pCreature->SetFaction(113);
         pCreature->SetHealth(pCreature->GetMaxHealth());
         pCreature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
         pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
@@ -570,7 +565,7 @@ struct npc_toogaAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_TORTA)
+        if (!me->GetVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_TORTA)
         {
             if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
@@ -705,7 +700,7 @@ void AddSC_tanaris()
     newscript->Name = "npc_steward_of_time";
     newscript->pGossipHello =  &GossipHello_npc_steward_of_time;
     newscript->pGossipSelect = &GossipSelect_npc_steward_of_time;
-    newscript->pQuestAccept =  &QuestAccept_npc_steward_of_time;
+    newscript->QuestAccept =  &QuestAccept_npc_steward_of_time;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -717,7 +712,7 @@ void AddSC_tanaris()
     newscript = new Script;
     newscript->Name = "npc_OOX17";
     newscript->GetAI = &GetAI_npc_OOX17;
-    newscript->pQuestAccept = &QuestAccept_npc_OOX17;
+    newscript->QuestAccept = &QuestAccept_npc_OOX17;
     newscript->RegisterSelf();
 
     newscript = new Script;
@@ -728,7 +723,7 @@ void AddSC_tanaris()
     newscript = new Script;
     newscript->Name = "npc_tooga";
     newscript->GetAI = &GetAI_npc_tooga;
-    newscript->pQuestAccept = &QuestAccept_npc_tooga;
+    newscript->QuestAccept = &QuestAccept_npc_tooga;
     newscript->RegisterSelf();
 }
 

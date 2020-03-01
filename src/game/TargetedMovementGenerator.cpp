@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "ByteBuffer.h"
@@ -56,40 +56,31 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T& owner, bool up
         }
         else
         {
-    if (!i_offset)
-    {
-        // to nearest random contact position
-        i_target->GetRandomContactPoint(&owner, x, y, z, 0, CONTACT_DISTANCE);
-
-        // Sometimes target is available only from certain angles
-        if (fabsf(i_target->GetPositionZ() - z) > owner.GetObjectSize())
-        {
-            float angles[] = { 0.f, 90.f, 180.f, 270.f, 45.f, 125.f, 225.f, 315.f };
-            bool needExact = true;
-            for (uint32 i = 0; i < sizeof(angles) / sizeof(*angles); i++)
+            if (!i_offset)
             {
-                i_target->GetClosePoint(x, y, z, owner.GetObjectSize(), CONTACT_DISTANCE, angles[i]);
-                if (fabsf(i_target->GetPositionZ() - z) <= owner.GetObjectSize())
-                {
-                    needExact = false;
-                    break;
-                }
-            }
+                // to nearest random contact position
+                i_target->GetRandomContactPoint(&owner, x, y, z, 0, CONTACT_DISTANCE);
 
-            if (needExact)
-                i_target->GetPosition(x, y, z);
-        }
-    }
-    else if (!i_angle && !owner.HasUnitState(UNIT_STATE_FOLLOW))
-    {
-        // caster chase
-        i_target->GetContactPoint(&owner, x, y, z, i_offset * urand(80, 95) * 0.01f);
-    }
-    else
-    {
-        // to at i_offset distance from target and i_angle from target facing
-        i_target->GetClosePoint(x, y, z, owner.GetObjectSize(), i_offset, i_angle);
-    }
+                // Sometimes target is available only from certain angles
+                // in that case we use the exact location (blizzlike hahavior)
+                if (fabsf(i_target->GetPositionZ() - z) > owner.GetObjectSize())
+                    i_target->GetPosition(x, y, z);
+            }
+            else if (!i_angle && !owner.HasUnitState(UNIT_STATE_FOLLOW))
+            {
+                // caster chase
+                i_target->GetContactPoint(&owner, x, y, z, i_offset * urand(80, 95) * 0.01f);
+            }
+            else
+            {
+                // to at i_offset distance from target and i_angle from target facing
+                i_target->GetClosePoint(x, y, z, owner.GetObjectSize(), i_offset, i_angle);
+
+                // Sometimes target is available only from certain angles
+                // in that case we use the exact location (blizzlike hahavior)
+                if (fabsf(i_target->GetPositionZ() - z) > (owner.GetObjectSize() + i_offset))
+                    i_target->GetPosition(x, y, z);
+            }
         }
     }
     else
@@ -105,8 +96,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T& owner, bool up
         i_path = new PathInfo(&owner);
 
     // allow pets following their master to cheat while generating paths
-    bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->IsPet()
-        && owner.HasUnitState(UNIT_STATE_FOLLOW));
+    bool forceDest = (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->HasUnitTypeMask(UNIT_MASK_MINION) &&
+        owner.HasUnitState(UNIT_STATE_FOLLOW));
 
     bool result = i_path->Update(x, y, z, forceDest);
     if (!result || (i_path->getPathType() & PATHFIND_NOPATH))
@@ -122,7 +113,8 @@ void TargetedMovementGeneratorMedium<T, D>::_setTargetLocation(T& owner, bool up
 
     Movement::MoveSplineInit init(owner);
     init.MovebyPath(i_path->getFullPath());
-    init.SetWalk(((D*)this)->EnableWalking());
+    init.SetWalk(((D*)this)->EnableWalking(owner));
+    static_cast<D*>(this)->_updateSpeed(owner);
 
     init.Launch();
 }
@@ -159,7 +151,7 @@ bool TargetedMovementGeneratorMedium<T, D>::Update(T& owner, const uint32& time_
     }
 
     // prevent crash after creature killed pet
-    if (!owner.HasUnitState(UNIT_STATE_FOLLOW) && owner.getVictim() != i_target.getTarget())
+    if (!owner.HasUnitState(UNIT_STATE_FOLLOW) && owner.GetVictim() != i_target.getTarget())
         return true;
 
     if (i_path && i_path->getPathType() & PATHFIND_NOPATH)
@@ -218,7 +210,7 @@ bool TargetedMovementGeneratorMedium<T, D>::RequiresNewPosition(T& owner, float 
 
     // GetClosePoint() will always return a point on the ground, so we need to
     // handle the difference in elevation when the creature is flying
-    if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->canFly())
+    if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->CanFly())
         targetMoved = i_target->GetDistanceSqr(x, y, z) > dist * dist;
     else
         targetMoved = i_target->GetDistance2d(x, y) > dist;
@@ -272,15 +264,16 @@ void ChaseMovementGenerator<T>::MovementInform(T& /*unit*/)
 }
 
 template<>
-bool FollowMovementGenerator<Creature>::EnableWalking() const
+bool FollowMovementGenerator<Player>::EnableWalking(Player& /*owner*/) const
 {
-    return i_target.isValid() && i_target->IsWalking();
+    return false;
 }
 
 template<>
-bool FollowMovementGenerator<Player>::EnableWalking() const
+bool FollowMovementGenerator<Creature>::EnableWalking(Creature& owner) const
 {
-    return false;
+    return i_target.isValid() && i_target->IsWalking() &&
+        i_target->GetDistance(owner) < (owner.GetCombatReach() + (sWorld.getRate(RATE_TARGET_POS_RECALCULATION_RANGE) * 2));
 }
 
 template<>
@@ -293,12 +286,13 @@ template<>
 void FollowMovementGenerator<Creature>::_updateSpeed(Creature& u)
 {
     // pet only sync speed with owner
-    if (!((Creature&)u).IsPet() || !i_target.isValid() || i_target->GetObjectGUID().GetRawValue() != u.GetOwnerGUID())
+    if (!((Creature&)u).HasUnitTypeMask(UNIT_MASK_MINION) || !i_target.isValid() || i_target->GetGUID() != u.GetCharmerOrOwnerGUID())
         return;
 
     u.UpdateSpeed(MOVE_RUN, true);
     u.UpdateSpeed(MOVE_WALK, true);
     u.UpdateSpeed(MOVE_SWIM, true);
+    u.UpdateSpeed(MOVE_FLIGHT, true);
 }
 
 template<>

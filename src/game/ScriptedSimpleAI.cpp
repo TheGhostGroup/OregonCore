@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -131,7 +131,7 @@ void SimpleAI::KilledUnit(Unit* victim)
         pTarget = me;
         break;
     case CAST_HOSTILE_TARGET:
-        pTarget = me->getVictim();
+        pTarget = me->GetVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
         pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
@@ -179,7 +179,7 @@ void SimpleAI::DamageTaken(Unit* killer, uint32& damage)
         pTarget = me;
         break;
     case CAST_HOSTILE_TARGET:
-        pTarget = me->getVictim();
+        pTarget = me->GetVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
         pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
@@ -230,7 +230,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
                     pTarget = me;
                     break;
                 case CAST_HOSTILE_TARGET:
-                    pTarget = me->getVictim();
+                    pTarget = me->GetVictim();
                     break;
                 case CAST_HOSTILE_SECOND_AGGRO:
                     pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);

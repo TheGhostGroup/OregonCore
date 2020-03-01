@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -113,7 +113,7 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
             {
                 Creature* pWar = Unit::GetCreature(*me, pInstance->GetData64(DATA_WARBRINGER));
                 if (pWar && pWar->IsAlive())
-                    pWar->AI()->AttackStart(me->getVictim());
+                    pWar->AI()->AttackStart(me->GetVictim());
             }
         }
     }
@@ -239,7 +239,7 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
                         // stop bladedance
                         InBlade = false;
                         me->SetSpeed(MOVE_RUN, 2);
-                        (*me).GetMotionMaster()->MoveChase(me->getVictim());
+                        (*me).GetMotionMaster()->MoveChase(me->GetVictim());
                         Blade_Dance_Timer = 30000;
                         Wait_Timer = 0;
                         if (HeroicMode)

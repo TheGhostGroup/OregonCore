@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -135,9 +135,15 @@ struct boss_high_king_maulgarAI : public ScriptedAI
         Charging_Timer = 0;
         Roar_Timer = 0;
 
-		const CreatureInfo* cinfo = me->GetCreatureTemplate();
-		me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + ((cinfo->mindmg / 100) * 45)));
-		me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + ((cinfo->maxdmg / 100) * 45)));
+        const CreatureInfo* cinfo = me->GetCreatureTemplate();
+        CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), cinfo->unit_class, cinfo->exp);
+        float basedamage = cCLS->BaseDamage;
+
+        float weaponBaseMinDamage = basedamage;
+        float weaponBaseMaxDamage = basedamage * 1.5;
+
+        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (weaponBaseMinDamage + ((weaponBaseMinDamage / 100) * 45)));
+        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (weaponBaseMaxDamage + ((weaponBaseMaxDamage / 100) * 45)));
 		me->UpdateDamagePhysical(BASE_ATTACK);
 
 		if (me->HasAura(SPELL_DUAL_WIELD))
@@ -280,7 +286,7 @@ struct boss_high_king_maulgarAI : public ScriptedAI
         else MightyBlow_Timer -= diff;
 
         //Entering Phase 2
-        if (!Phase2 && (me->GetHealth() * 100 / me->GetMaxHealth()) < 50)
+        if (!Phase2 && HealthBelowPct(50))
         {
             Phase2 = true;
             DoScriptText(SAY_ENRAGE, me);
@@ -293,9 +299,15 @@ struct boss_high_king_maulgarAI : public ScriptedAI
 
         if (Phase2)
         {
-			const CreatureInfo* cinfo = me->GetCreatureTemplate();
-			me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + ((cinfo->mindmg / 100) * 1)));
-			me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + ((cinfo->maxdmg / 100) * 1)));
+            const CreatureInfo* cinfo = me->GetCreatureTemplate();
+            CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), cinfo->unit_class, cinfo->exp);
+            float basedamage = cCLS->BaseDamage;
+
+            float weaponBaseMinDamage = basedamage;
+            float weaponBaseMaxDamage = basedamage * 1.5;
+
+            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (weaponBaseMinDamage + ((weaponBaseMinDamage / 100) * 1)));
+            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (weaponBaseMaxDamage + ((weaponBaseMaxDamage / 100) * 1)));
 			me->UpdateDamagePhysical(BASE_ATTACK);
 
             //Charging_Timer
@@ -455,7 +467,7 @@ struct boss_kiggler_the_crazedAI : public ScriptedAI
         ArcaneShock_Timer = 10000;
         ArcaneExplosion_Timer = 20000;
 
-		me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+		me->SetRooted(true);
         //reset encounter
         if (pInstance)
             pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
@@ -519,12 +531,12 @@ struct boss_kiggler_the_crazedAI : public ScriptedAI
         else GreaterPolymorph_Timer -= diff;
 
         //LightningBolt_Timer
-		if (me->IsWithinMeleeRange(me->getVictim()))
+		if (me->IsWithinMeleeRange(me->GetVictim()))
 		{
 			//Make sure our attack is ready and we arn't currently casting
 			if (me->isAttackReady() && !me->IsNonMeleeSpellCast(false))
 			{
-				me->AttackerStateUpdate(me->getVictim());
+				me->AttackerStateUpdate(me->GetVictim());
 				me->resetAttackTimer();
 			}
 		}
@@ -680,7 +692,7 @@ struct boss_krosh_firehandAI : public ScriptedAI
         SpellShield_Timer = 1500;
         BlastWave_Timer = 20000;
 
-		me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+		me->SetRooted(true);
         //reset encounter
         if (pInstance)
             pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
@@ -745,7 +757,7 @@ struct boss_krosh_firehandAI : public ScriptedAI
         else SpellShield_Timer -= diff;
 
         //GreaterFireball_Timer
-        if (GreaterFireball_Timer <= diff && me->GetDistance(me->getVictim()) < 100)
+        if (GreaterFireball_Timer <= diff && me->GetDistance(me->GetVictim()) < 100)
         {
             DoCastVictim( SPELL_GREATER_FIREBALL);
             GreaterFireball_Timer = 3000;

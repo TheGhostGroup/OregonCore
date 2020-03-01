@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "karazhan.h"
+#include "Unit.h"
 
 #define SAY_AGGRO           -1532091
 #define SAY_AXE_TOSS1       -1532092
@@ -209,7 +210,7 @@ struct boss_malchezaarAI : public ScriptedAI
         SWPainTimer = 20000;
         AmplifyDamageTimer = 5000;
         Cleave_Timer = 8000;
-        InfernalTimer = 45000;
+        InfernalTimer = 40000;
         InfernalCleanupTimer = 47000;
         AxesTargetSwitchTimer = urand(7500, 20000);
         SunderArmorTimer = urand(5000, 10000);
@@ -281,11 +282,7 @@ struct boss_malchezaarAI : public ScriptedAI
         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_DISPLAY + 1, 0);
         me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO + 2, 0);
 
-        //damage
-        const CreatureInfo* cinfo = me->GetCreatureTemplate();
-        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-        me->UpdateDamagePhysical(BASE_ATTACK);
+        me->SetCanDualWield(false);
     }
 
     void EnfeebleHealthEffect()
@@ -305,7 +302,7 @@ struct boss_malchezaarAI : public ScriptedAI
         std::advance(itr, 1);
         for (; itr != t_list.end(); ++itr) //store the threat list in a different container
             if (Unit* pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (pTarget->IsAlive() && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget != me->getVictim())
+                if (pTarget->IsAlive() && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget != me->GetVictim())
                     targets.push_back(pTarget);
 
         //cut down to size if we have more than 5 targets
@@ -341,7 +338,7 @@ struct boss_malchezaarAI : public ScriptedAI
         InfernalPoint* point = NULL;
         Position pos;
         if ((me->GetMapId() != 532) || positions.empty())
-            me->GetRandomNearPosition(pos, 60);
+            pos = me->GetRandomNearPosition(60.0f);
         else
         {
             std::vector<InfernalPoint*>::iterator itr = positions.begin() + rand() % positions.size();
@@ -355,7 +352,7 @@ struct boss_malchezaarAI : public ScriptedAI
         if (Infernal)
         {
             Infernal->SetDisplayId(INFERNAL_MODEL_INVISIBLE);
-            Infernal->setFaction(me->getFaction());
+            Infernal->SetFaction(me->GetFaction());
             if (point)
                 CAST_AI(netherspite_infernalAI, Infernal->AI())->point = point;
             CAST_AI(netherspite_infernalAI, Infernal->AI())->malchezaar = me->GetGUID();
@@ -382,8 +379,8 @@ struct boss_malchezaarAI : public ScriptedAI
         if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
             return;
 
-        if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->getVictim()->GetGUID())
-            me->SetUInt64Value(UNIT_FIELD_TARGET, me->getVictim()->GetGUID());
+        if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->GetVictim()->GetGUID())
+            me->SetUInt64Value(UNIT_FIELD_TARGET, me->GetVictim()->GetGUID());
 
         if (phase == 1)
         {
@@ -411,15 +408,17 @@ struct boss_malchezaarAI : public ScriptedAI
 
                 //damage
                 const CreatureInfo* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * cinfo->mindmg);
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * cinfo->maxdmg);
-                me->UpdateDamagePhysical(BASE_ATTACK);
+                CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), cinfo->unit_class, cinfo->exp);
+                float basedamage = cCLS->BaseDamage;
 
-                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
-                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-                //Sigh, updating only works on main attack, do it manually ....
-                me->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
-                me->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
+                float weaponBaseMinDamage = basedamage;
+                float weaponBaseMaxDamage = basedamage * 1.5;
+
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * weaponBaseMinDamage);
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * weaponBaseMaxDamage);
+                me->UpdateDamagePhysical(BASE_ATTACK);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, weaponBaseMinDamage);
+                me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, weaponBaseMaxDamage);                                            
 
                 me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK) * 150) / 100);
             }
@@ -449,7 +448,7 @@ struct boss_malchezaarAI : public ScriptedAI
                         axe->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, AXE_EQUIP_INFO);
 
                         axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        axe->setFaction(me->getFaction());
+                        axe->SetFaction(me->GetFaction());
                         axes[i] = axe->GetGUID();
                         if (pTarget)
                         {
@@ -495,11 +494,11 @@ struct boss_malchezaarAI : public ScriptedAI
                     {
                         if (Unit* axe = Unit::GetUnit(*me, axes[i]))
                         {
-                            if (axe->getVictim())
-                                DoModifyThreatPercent(axe->getVictim(), -100);
+                            if (axe->GetVictim())
+                                DoModifyThreatPercent(axe->GetVictim(), -100);
                             if (pTarget)
                                 axe->AddThreat(pTarget, 1000000.0f);
-                            //axe->getThreatManager().tauntFadeOut(axe->getVictim());
+                            //axe->getThreatManager().tauntFadeOut(axe->GetVictim());
                             //axe->getThreatManager().tauntApply(pTarget);
                         }
                     }
@@ -537,7 +536,7 @@ struct boss_malchezaarAI : public ScriptedAI
             {
                 Unit* pTarget = NULL;
                 if (phase == 1)
-                    pTarget = me->getVictim();        // the tank
+                    pTarget = me->GetVictim();        // the tank
                 else                                          // anyone but the tank
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
@@ -569,18 +568,18 @@ struct boss_malchezaarAI : public ScriptedAI
 
     void DoMeleeAttacksIfReady()
     {
-        if (me->IsWithinMeleeRange(me->getVictim()) && !me->IsNonMeleeSpellCast(false))
+        if (me->IsWithinMeleeRange(me->GetVictim()) && !me->IsNonMeleeSpellCast(false))
         {
             //Check for base attack
-            if (me->isAttackReady() && me->getVictim())
+            if (me->isAttackReady() && me->GetVictim())
             {
-                me->AttackerStateUpdate(me->getVictim());
+                me->AttackerStateUpdate(me->GetVictim());
                 me->resetAttackTimer();
             }
             //Check for offhand attack
-            if (me->isAttackReady(OFF_ATTACK) && me->getVictim())
+            if (me->isAttackReady(OFF_ATTACK) && me->GetVictim())
             {
-                me->AttackerStateUpdate(me->getVictim(), OFF_ATTACK);
+                me->AttackerStateUpdate(me->GetVictim(), OFF_ATTACK);
                 me->resetAttackTimer(OFF_ATTACK);
             }
         }

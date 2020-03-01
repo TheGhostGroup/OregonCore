@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "ObjectAccessor.h"
@@ -220,7 +220,10 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
     ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
     if (corpse->FindMap())
+    {
+        corpse->DestroyForNearbyPlayers();
         corpse->FindMap()->RemoveFromMap(corpse, false);
+    }
     else
         corpse->RemoveFromWorld();
 
@@ -311,13 +314,6 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
     // remove corpse from player_guid -> corpse map
     RemoveCorpse(corpse);
 
-    // done in removecorpse
-    // remove resurrectable corpse from grid object registry (loaded state checked into call)
-    // do not load the map if it's not loaded
-    //Map *map = MapManager::Instance().FindMap(corpse->GetMapId(), corpse->GetInstanceId());
-    //if (map)
-    //    map->Remove(corpse, false);
-
     // remove corpse from DB
     corpse->DeleteFromDB();
 
@@ -339,6 +335,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
         // bones->m_time = m_time;                              // don't overwrite time
         // bones->m_inWorld = m_inWorld;                        // don't overwrite in-world state
         // bones->m_type = m_type;                              // don't overwrite type
+        bones->SetPhaseMask(corpse->GetPhaseMask(), false);
         bones->Relocate(corpseX, corpseY, corpseZ, corpseO);
 
         bones->SetUInt32Value(CORPSE_FIELD_FLAGS, CORPSE_FLAG_UNK2 | CORPSE_FLAG_BONES);

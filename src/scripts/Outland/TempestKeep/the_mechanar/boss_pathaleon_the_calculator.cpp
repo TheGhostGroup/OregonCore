@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -180,7 +180,7 @@ struct boss_pathaleon_the_calculatorAI : public ScriptedAI
             else ArcaneExplosion_Timer -= diff;
         }
 
-        if (!Enraged && me->GetHealth() * 100 / me->GetMaxHealth() < 21)
+        if (!Enraged && HealthBelowPct(20))
         {
             DoCast(me, SPELL_FRENZY);
             DoScriptText(SAY_ENRAGE, me);

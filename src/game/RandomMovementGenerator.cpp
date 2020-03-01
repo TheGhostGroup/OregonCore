@@ -12,13 +12,13 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "Creature.h"
 #include "RandomMovementGenerator.h"
 #include "Map.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "CreatureGroups.h"
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
@@ -29,6 +29,12 @@ template<>
 void
 RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
 {
+    if (creature.HasUnitState(UNIT_STATE_CASTING) && !creature.CanMoveDuringChannel())
+    {
+        creature.CastStop();
+        return;
+    }
+
     float X, Y, Z, nx, ny, nz, ori, dist;
     creature.GetHomePosition(X, Y, Z, ori);
     Map const* map = creature.GetBaseMap();
@@ -36,7 +42,7 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
     // For 2D/3D system selection
     //bool is_land_ok  = creature.canWalk();
     //bool is_water_ok = creature.canSwim();
-    bool is_air_ok   = creature.canFly();
+    bool is_air_ok   = creature.CanFly();
 
     const float angle = rand_norm() * (M_PI * 2);
     const float range = rand_norm() * wander_distance;
@@ -103,6 +109,10 @@ RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
 
     Movement::MoveSplineInit init(creature);
     init.MoveTo(nx, ny, nz, true);
+
+    if (creature.CanFly())
+        init.SetFly();
+
     if (creature.IsPet() && creature.GetOwner() && !creature.IsWithinDist(creature.GetOwner(), PET_FOLLOW_DIST + 2.5f))
         init.SetWalk(false);
     else
@@ -143,6 +153,9 @@ void RandomMovementGenerator<Creature>::Finalize(Creature& creature)
 template<>
 bool RandomMovementGenerator<Creature>::Update(Creature& creature, const uint32& diff)
 {
+    if (!creature.IsAlive())
+        return false;
+
     if (creature.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
     {
         i_nextMoveTime.Reset(0);  // Expire the timer

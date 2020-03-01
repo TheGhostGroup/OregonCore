@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -131,8 +131,8 @@ struct boss_arlokkAI : public ScriptedAI
         if (Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
             DoScriptText(SAY_FEAST_PANTHER, me, pMarkedTarget);
 
-        me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998, -1649.6734, 41.4800, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-        me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970, -1606.4840, 41.2979, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+        me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998f, -1649.6734f, 41.4800f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+        me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970f, -1606.4840f, 41.2979f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -214,8 +214,8 @@ struct boss_arlokkAI : public ScriptedAI
             {
                 DoCastVictim( SPELL_GOUGE);
 
-                if (DoGetThreat(me->getVictim()))
-                    DoModifyThreatPercent(me->getVictim(), -80);
+                if (DoGetThreat(me->GetVictim()))
+                    DoModifyThreatPercent(me->GetVictim(), -80);
 
                 m_uiGouge_Timer = 17000 + rand() % 10000;
             }
@@ -260,8 +260,14 @@ struct boss_arlokkAI : public ScriptedAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 const CreatureInfo* cinfo = me->GetCreatureTemplate();
-                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg + ((cinfo->mindmg / 100) * 35)));
-                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg + ((cinfo->maxdmg / 100) * 35)));
+                CreatureBaseStats const* cCLS = sObjectMgr.GetCreatureClassLvlStats(me->getLevel(), cinfo->unit_class, cinfo->exp);
+                float basedamage = cCLS->BaseDamage;
+
+                float weaponBaseMinDamage = basedamage;
+                float weaponBaseMaxDamage = basedamage * 1.5;
+
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (weaponBaseMinDamage + ((weaponBaseMinDamage / 100) * 35)));
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (weaponBaseMaxDamage + ((weaponBaseMaxDamage / 100) * 35)));
                 me->UpdateDamagePhysical(BASE_ATTACK);
 
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -310,8 +316,8 @@ struct mob_prowlerAI : public ScriptedAI
         if (m_uiUpdateTarget_Timer <= uiDiff)
         {
             Unit* pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID);
-            if (DoGetThreat(me->getVictim()))
-                DoModifyThreatPercent(me->getVictim(), -100);
+            if (DoGetThreat(me->GetVictim()))
+                DoModifyThreatPercent(me->GetVictim(), -100);
             me->AI()->AttackStart(pMarkedTarget);
             m_uiUpdateTarget_Timer = 2000;
         }

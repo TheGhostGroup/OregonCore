@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -210,7 +210,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor (me))
+        if (!me->GetVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor (me))
         {
             if (!IntroOnce && me->IsWithinDistInMap(who, 40))
             {
@@ -222,7 +222,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
                     pInstance->SetData(TYPE_NETHEKURSE, IN_PROGRESS);
             }
 
-            if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+            if (!me->CanFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
             if (IsIntroEvent || !IsMainEvent)
@@ -256,7 +256,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->setFaction(14);
+        summoned->SetFaction(14);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }

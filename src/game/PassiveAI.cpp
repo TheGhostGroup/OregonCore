@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include "PassiveAI.h"
@@ -44,9 +44,9 @@ void PossessedAI::AttackStart(Unit* target)
 
 void PossessedAI::UpdateAI(const uint32 /*diff*/)
 {
-    if (me->getVictim())
+    if (me->GetVictim())
     {
-        if (!me->canAttack(me->getVictim()))
+        if (!me->IsValidAttackTarget(me->GetVictim()))
             me->AttackStop();
         else
             DoMeleeAttackIfReady();

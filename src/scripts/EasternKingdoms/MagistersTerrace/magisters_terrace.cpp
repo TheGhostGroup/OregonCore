@@ -12,7 +12,7 @@
  * more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
+ * with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -42,7 +42,7 @@ enum eEnums
     POINT_ID_LAND               = 1
 };
 
-const float afKaelLandPoint[] = {225.045, -276.236, -5.434};
+const float afKaelLandPoint[] = {225.045f, -276.236f, -5.434f};
 
 #define GOSSIP_ITEM_KAEL_1      "Who are you?"
 #define GOSSIP_ITEM_KAEL_2      "What can we do to assist you?"
@@ -105,7 +105,7 @@ CreatureAI* GetAI_npc_kalecgos(Creature* pCreature)
 
 bool GossipHello_npc_kalecgos(Player* pPlayer, Creature* pCreature)
 {
-    if (pCreature->isQuestGiver())
+    if (pCreature->IsQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAEL_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
